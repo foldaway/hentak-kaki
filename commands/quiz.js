@@ -6,7 +6,9 @@ module.exports = {
           [{ text: 'BMT' }],
           [{ text: 'SCS' }],
           [{ text: 'OCS' }]
-        ]
+        ],
+        one_time_keyboard: true,
+        selective: true
       }
     });
   },
