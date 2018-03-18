@@ -19,8 +19,7 @@ const arraySample = array => array[Math.floor(Math.random() * array.length)];
 
 module.exports = async (ctx) => {
   const argument = ctx.message.text.split(' ').splice(1).join(' ');
-  const hasArgument = comment => comment.data.body.toLowerCase()
-    .indexOf(argument.toLowerCase()) > -1;
+  const hasArgument = comment => new RegExp(`\\b${argument}\\b`, 'i').test(comment.data.body);
 
   ctx.replyWithChatAction('typing');
   const responses = await Promise.all(feeds.map(url => fetch(url)
