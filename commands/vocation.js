@@ -11,7 +11,7 @@ const feeds = [
   'https://www.reddit.com/r/singapore/comments/6hfbvk/ns_postings_0217.json' // 02/17
 ];
 
-const hasBodyText = comment => 'body' in comment.data;
+const hasBodyText = comment => 'body' in comment.data || 'body_html' in comment.data;
 const hasReplies = comment => comment.data.replies &&
   comment.data.replies.data.children.length > 0 &&
   comment.data.replies.data.children[0].kind !== 'more'; // More comments. Don't bother to expand.
