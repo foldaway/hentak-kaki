@@ -17,10 +17,7 @@ glob.sync('./commands/**/*.js').forEach((file) => {
     bot.command(commandName, exp);
   } else if (exp instanceof Object) {
     bot.command(commandName, exp.initialHandler);
-    if ('responseHandler' in exp) {
-      // Single catch-all handler, for open-ended responses
-      bot.hears(/.+?/i, exp.responseHandler);
-    } else {
+    if ('responseHandlers' in exp) {
       // Fixed-answer handlers
       bot.hears(/.+?/i, (ctx) => {
         if (ctx.update.message.text in exp.responseHandlers) {
@@ -30,6 +27,9 @@ glob.sync('./commands/**/*.js').forEach((file) => {
           exp.responseHandler(ctx);
         }
       });
+    } else {
+      // Single catch-all handler, for open-ended responses
+      bot.hears(/.+?/i, exp.responseHandler);
     }
   }
 });
