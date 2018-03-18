@@ -1,5 +1,8 @@
 const fetch = require('node-fetch');
-const pry = require('pryjs');
+const TurndownService = require('turndown');
+const turndownService = new TurndownService({
+  strongDelimiter: '*'
+});
 
 const feeds = [
   'https://www.reddit.com/r/singapore/comments/84rjsk/ns_posting_0318.json', // 01/18
@@ -39,7 +42,9 @@ module.exports = async (ctx) => {
 
   const chosenCommentReply = arraySample(chosenCommentReplies);
   ctx.replyWithMarkdown(
-    `*${argument}*:\n${chosenCommentReply.data.body}`,
+    `*OP*: _${turndownService.turndown(chosenComment.data.body || chosenComment.data.body_html)}_:
+
+*Advice:* ${chosenCommentReply.data.body}`,
     { reply_to_message_id: ctx.update.message.message_id }
   );
 };
