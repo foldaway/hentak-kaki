@@ -17,33 +17,43 @@ const hasReplies = comment => comment.data.replies &&
   comment.data.replies.data.children[0].kind !== 'more'; // More comments. Don't bother to expand.
 const arraySample = array => array[Math.floor(Math.random() * array.length)];
 
-module.exports = async (ctx) => {
-  const argument = ctx.message.text.split(' ').splice(1).join(' ');
-  const hasArgument = comment => new RegExp(`\\b${argument}\\b`, 'i').test(comment.data.body);
+module.exports = {
+  initialHandler: async (ctx) => {
+    ctx.replyWithMarkdown('Type a vocation. _E.g. MP, Guards_', {
+      reply_markup: {
+        force_reply: true,
+        selective: true
+      }
+    });
+  },
+  responseHandler: async (ctx) => {
+    const argument = ctx.message.text;
+    const hasArgument = comment => new RegExp(`${argument}\\b`, 'i').test(comment.data.body || comment.data.body_html);
 
-  ctx.replyWithChatAction('typing');
-  const responses = await Promise.all(feeds.map(url => fetch(url)
-    .then(r => r.json())
-    .then(data => data[1].data.children)));
-  const feedComments = responses.reduce((a, b) => a.concat(b));
-  // eval(pry.it)
-  const relevantComments = feedComments
-    .filter(hasBodyText)
-    .filter(hasArgument)
-    .filter(hasReplies);
-  if (relevantComments.length === 0) {
-    ctx.reply('No advice :(', { reply_to_message_id: ctx.update.message.message_id });
-    return;
-  }
-  const chosenComment = arraySample(relevantComments);
-  const chosenCommentReplies = chosenComment.data.replies.data.children
-    .filter(hasBodyText);
+    ctx.replyWithChatAction('typing');
+    const responses = await Promise.all(feeds.map(url => fetch(url)
+      .then(r => r.json())
+      .then(data => data[1].data.children)));
+    const feedComments = responses.reduce((a, b) => a.concat(b));
+    // eval(pry.it)
+    const relevantComments = feedComments
+      .filter(hasBodyText)
+      .filter(hasArgument)
+      .filter(hasReplies);
+    if (relevantComments.length === 0) {
+      ctx.reply('No advice :(', { reply_to_message_id: ctx.update.message.message_id });
+      return;
+    }
+    const chosenComment = arraySample(relevantComments);
+    const chosenCommentReplies = chosenComment.data.replies.data.children
+      .filter(hasBodyText);
 
-  const chosenCommentReply = arraySample(chosenCommentReplies);
-  ctx.replyWithMarkdown(
-    `*OP*: _${turndownService.turndown(chosenComment.data.body || chosenComment.data.body_html)}_:
-
+    const chosenCommentReply = arraySample(chosenCommentReplies);
+    ctx.replyWithMarkdown(
+      `*OP*: _${turndownService.turndown(chosenComment.data.body || chosenComment.data.body_html)}_:
+  
 *Advice:* ${chosenCommentReply.data.body}`,
-    { reply_to_message_id: ctx.update.message.message_id }
-  );
+      { reply_to_message_id: ctx.update.message.message_id }
+    );
+  }
 };
