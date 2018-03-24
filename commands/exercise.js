@@ -34,5 +34,5 @@ module.exports = {
 	8. Calf Stretch
 	`)
     },
-    responseHandler: (ctx) => ctx.reply('ciao recruit')
+    responseHandler: (ctx) => ctx.reply('Knock it down')
 };
