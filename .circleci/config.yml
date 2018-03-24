@@ -12,3 +12,14 @@ jobs:
       - checkout
       - run:
           command: bash .circleci/deploy.sh
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: add-ci
