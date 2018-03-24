@@ -7,7 +7,8 @@ module.exports = async (ctx) => {
   const feed = await fetch(`https://graph.facebook.com/officialsafmemes/posts?access_token=${process.env.FACEBOOK_APP_ID}|${process.env.FACEBOOK_APP_SECRET}&fields=attachments`)
     .then(r => r.json());
 
-  const chosenPost = arraySample(feed.data.filter(post => post.attachments.data.length > 0));
+  const chosenPost = arraySample(feed.data.filter(post => 'attachments' in post)
+    .filter(post => post.attachments.data.length > 0));
   const chosenImage = chosenPost.attachments.data[0];
   ctx.replyWithPhoto(chosenImage.media.image.src, {
     caption: chosenImage.description
