@@ -1,4 +1,4 @@
 #!/bin/bash
 
-git remote add dokku dokku@dokku.duncanleo.me:hentak-kaki
+git remote add dokku dokku@app.duncanleo.me:hentak-kaki
 git push dokku master
