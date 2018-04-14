@@ -19,6 +19,7 @@
   "dependencies": {
     "dotenv": "^5.0.1",
     "node-fetch": "^2.1.1",
+    "snoowrap": "^1.15.2",
     "telegraf": "^3.19.0",
     "turndown": "^4.0.1"
   }

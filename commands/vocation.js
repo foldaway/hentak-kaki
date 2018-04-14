@@ -1,20 +1,26 @@
-const fetch = require('node-fetch');
+const Snoowrap = require('snoowrap');
 const TurndownService = require('turndown');
 const turndownService = new TurndownService({
   strongDelimiter: '*'
 });
 
-const feeds = [
-  'https://www.reddit.com/r/singapore/comments/84rjsk/ns_posting_0318.json', // 01/18
-  'https://www.reddit.com/r/singapore/comments/7jw0fh/ns_postings_0517.json', // 04/17
-  'https://www.reddit.com/r/singapore/comments/7039qd/ns_postings_0317.json', // 03/17
-  'https://www.reddit.com/r/singapore/comments/6hfbvk/ns_postings_0217.json' // 02/17
+const r = new Snoowrap({
+  userAgent: 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.85 Safari/537.36',
+  clientId: process.env.REDDIT_CLIENT_ID,
+  clientSecret: process.env.REDDIT_CLIENT_SECRET,
+  username: process.env.REDDIT_USERNAME,
+  password: process.env.REDDIT_PASSWORD
+});
+
+const submissions = [
+  '84rjsk', // 01/18
+  '7jw0fh', // 04/17
+  '7039qd', // 03/17
+  '6hfbvk' // 02/17
 ];
 
-const hasBodyText = comment => 'body' in comment.data || 'body_html' in comment.data;
-const hasReplies = comment => comment.data.replies &&
-  comment.data.replies.data.children.length > 0 &&
-  comment.data.replies.data.children[0].kind !== 'more'; // More comments. Don't bother to expand.
+// const hasBodyText = comment => 'body' in comment.data || 'body_html' in comment.data;
+const hasReplies = comment => comment.replies && comment.replies.length > 0;
 const arraySample = array => array[Math.floor(Math.random() * array.length)];
 
 module.exports = {
@@ -27,17 +33,15 @@ module.exports = {
     });
   },
   responseHandler: async (ctx) => {
-    const argument = ctx.message.text;
-    const hasArgument = comment => new RegExp(`${argument}\\b`, 'i').test(comment.data.body || comment.data.body_html);
-
     ctx.replyWithChatAction('typing');
-    const responses = await Promise.all(feeds.map(url => fetch(url)
-      .then(r => r.json())
-      .then(data => data[1].data.children)));
+
+    const argument = ctx.message.text;
+    console.log(`[VOCATION] Searching for '${argument}'`);
+    const hasArgument = comment => new RegExp(`${argument}\\b`, 'i').test(comment.body);
+
+    const responses = await Promise.all(submissions.map(id => r.getSubmission(id).comments));
     const feedComments = responses.reduce((a, b) => a.concat(b));
-    // eval(pry.it)
     const relevantComments = feedComments
-      .filter(hasBodyText)
       .filter(hasArgument)
       .filter(hasReplies);
     if (relevantComments.length === 0) {
@@ -45,14 +49,14 @@ module.exports = {
       return;
     }
     const chosenComment = arraySample(relevantComments);
-    const chosenCommentReplies = chosenComment.data.replies.data.children
-      .filter(hasBodyText);
+    console.log(`[VOCATION] Chosen ${chosenComment.permalink}`);
+    const chosenCommentReplies = chosenComment.replies;
 
     const chosenCommentReply = arraySample(chosenCommentReplies);
     ctx.replyWithMarkdown(
-      `*OP*: _${turndownService.turndown(chosenComment.data.body || chosenComment.data.body_html)}_:
+      `*OP*: _${turndownService.turndown(chosenComment.body)}_
   
-*Advice:* ${chosenCommentReply.data.body}`,
+*Advice:* ${chosenCommentReply.body}`,
       { reply_to_message_id: ctx.update.message.message_id }
     );
   }
