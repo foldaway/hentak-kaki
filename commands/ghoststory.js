@@ -17,7 +17,8 @@ const submissions = [
   '5iajz7',
   '4ovtw1',
   '54pxf7',
-  '86z0av'
+  '86z0av',
+  '86syoy'
 ];
 
 const arraySample = array => array[Math.floor(Math.random() * array.length)];
