@@ -3,7 +3,7 @@ const dateFormat = require('dateformat');
 const redis = require('redis');
 const { promisify } = require('util');
 
-const redisClient = redis.createClient();
+const redisClient = redis.createClient(process.env.REDIS_URL || null);
 const lrange = promisify(redisClient.lrange).bind(redisClient);
 const lpush = promisify(redisClient.lpush).bind(redisClient);
 
