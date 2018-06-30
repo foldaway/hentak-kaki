@@ -1,17 +1,21 @@
 require('dotenv').config();
 const glob = require('glob');
 const path = require('path');
+const { CronJob } = require('cron');
 
 const Telegraf = require('telegraf');
-const session = require('telegraf/session')
-const Stage = require('telegraf/stage')
-const Scene = require('telegraf/scenes/base')
+const Telegram = require('telegraf/telegram')
+const session = require('telegraf/session');
+const Stage = require('telegraf/stage');
+const Scene = require('telegraf/scenes/base');
 const { leave } = Stage;
 
 const bot = new Telegraf(
   process.env.TELEGRAM_BOT_TOKEN,
   { username: process.env.TELEGRAM_BOT_USERNAME }
 );
+
+const telegram = new Telegram(process.env.TELEGRAM_BOT_TOKEN);
 
 const stage = new Stage();
 bot.use(session());
@@ -49,6 +53,19 @@ glob.sync('./commands/**/*.js').forEach((file) => {
 
     bot.command(commandName, (ctx) => ctx.scene.enter(commandName));
   }
+});
+
+glob.sync('./tasks/**/*.js').forEach((file) => {
+  const exp = require(path.resolve(file)); // eslint-disable-line global-require
+  const task = path.basename(file).replace(/\.js/, '');
+  console.log(`Setting up cronjob '${task}' at '${exp.cron}'`);
+  const job = new CronJob({
+    cronTime: exp.cron,
+    onTick: async () => exp.func(telegram),
+    start: false,
+    timeZone: 'Asia/Singapore'
+  });
+  job.start();
 });
 
 bot.command('cancel', leave());
