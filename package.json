@@ -17,6 +17,7 @@
     "start": "node main.js"
   },
   "dependencies": {
+    "dateformat": "^3.0.3",
     "dotenv": "^5.0.1",
     "node-fetch": "^2.1.1",
     "snoowrap": "^1.15.2",
