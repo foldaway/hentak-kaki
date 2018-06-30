@@ -34,6 +34,7 @@ module.exports = {
     const arg = ctx.message.text;
 
     await lpush(ctx.chat.id, arg);
+    await lpush(arg, ctx.chat.id);
 
     ctx.replyWithMarkdown(
       `subscribed to '${arg}'`,

@@ -30,6 +30,7 @@ module.exports = {
     const arg = ctx.message.text;
 
     await lrem(ctx.chat.id, 0, arg);
+    await lrem(arg, 0, ctx.chat.id);
 
     ctx.replyWithMarkdown(
       `unsubscribed from '${arg}'`,
