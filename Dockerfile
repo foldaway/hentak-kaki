@@ -13,7 +13,6 @@ WORKDIR /app
 RUN apk --update add tzdata
 RUN ln -sf /usr/share/zoneinfo/Asia/Singapore /etc/localtime
 RUN echo "Asia/Singapore" >  /etc/timezone
-RUN apk del tzdata
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
 RUN yarn
