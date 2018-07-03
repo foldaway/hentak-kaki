@@ -12,6 +12,7 @@ const hset = promisify(redisClient.hset).bind(redisClient);
 
 const KEY_LATEST_UPDATE_TIMESTAMP = 'WEATHER_LATEST_UPDATE_TIMESTAMP';
 const KEY_LAST_FETCH_UPDATE_FORECASTS = 'WEATHER_LAST_FETCH_UPDATE_FORECASTS';
+const KEY_LAST_FETCH_UPDATE_PERIODENDS = 'WEATHER_LAST_FETCH_UPDATE_PERIODENDS';
 
 const CHANGETYPE = {
   WASCATONE: 'WASCATONE',
@@ -55,9 +56,11 @@ module.exports = {
         .find((forecast) => forecast.area === area).forecast;
 
       const redisLastFetchedForecast = hget(KEY_LAST_FETCH_UPDATE_FORECASTS, area);
+      const redisLastFetchedPeriodEnd = hget(KEY_LAST_FETCH_UPDATE_PERIODENDS, area);
 
       console.log(`Checking '${area}'. '${previousForecast}' => '${latestForecast}'`);
       hset(KEY_LAST_FETCH_UPDATE_FORECASTS, area, latestForecast);
+      hset(KEY_LAST_FETCH_UPDATE_PERIODENDS, area, latestItem.valid_period.end);
 
       const areaForecast = {
         name: area,
@@ -66,7 +69,10 @@ module.exports = {
         type: null
       };
 
-      if (latestForecast.match(/Thunder/i) && (previousForecast.match(/Thunder/i) || redisLastFetchedForecast === latestForecast)) {
+      if (redisLastFetchedPeriodEnd === latestItem.valid_period.end) {
+        // No timing updates, ignore.
+      } else if (latestForecast.match(/Thunder/i) &&
+        (previousForecast.match(/Thunder/i) || redisLastFetchedForecast === latestForecast)) {
         areaForecast.type = CHANGETYPE.EXTENDED;
       } else if (latestForecast.match(/Thunder/i)) {
         areaForecast.type = CHANGETYPE.NOWCATONE;
