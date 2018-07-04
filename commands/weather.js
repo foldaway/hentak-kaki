@@ -30,7 +30,7 @@ module.exports = {
       .then(r => r.json());
     const latestItem = items[items.length - 1];
     const periodEnd = dateFormat(latestItem.valid_period.end, 'HHMM');
-    const relevantForecast = latestItem.forecasts.find((forecast) => forecast.area === arg);
+    const relevantForecast = latestItem.forecasts.find((forecast) => forecast.area === arg) || null;
 
     if (relevantForecast === null) {
       ctx.replyWithMarkdown(
