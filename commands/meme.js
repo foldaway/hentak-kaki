@@ -1,30 +1,52 @@
 const fetch = require('node-fetch');
+const cheerio = require('cheerio');
 
-const arraySample = array => array[Math.floor(Math.random() * array.length)];
+/* eslint-disable no-await-in-loop */
 
 module.exports = async (ctx) => {
-  const posts = [];
-  let url = `https://graph.facebook.com/officialsafmemes/posts?access_token=${process.env.FACEBOOK_APP_ID}|${process.env.FACEBOOK_APP_SECRET}&fields=attachments&limit=100`;
-  let response = null;
+  let url = 'https://www.facebook.com/pages_reaction_units/more/?page_id=1562306407140115&cursor={%22timeline_section_cursor%22:{},%22has_next_page%22:true}&surface=www_pages_posts&unit_count=8&__user=0&__a=1';
 
   ctx.replyWithChatAction('typing');
 
-  do {
-    response = await fetch(url) // eslint-disable-line no-await-in-loop
-      .then(r => r.json());
-    posts.push(...response.data);
-    url = response.paging.next;
-  } while ('next' in response);
+  const response = await fetch(url, {
+    headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.1 Safari/605.1.15' },
+  }).then(r => r.text())
+    .then(r => r.match(/"__html":"(.*?)"}]],"jsmods"/)[1]);
 
-  const chosenPost = arraySample(posts.filter(post => 'attachments' in post)
-    .filter(post => post.attachments.data.length > 0));
+  const decodedResp = JSON.parse(`"${response}"`).slice(1, -1);
 
-  const chosenAtt = chosenPost.attachments.data[0];
-  if (chosenAtt.type === 'photo') {
-    ctx.replyWithPhoto(chosenAtt.media.image.src, {
-      caption: chosenAtt.description
+  const $ = cheerio.load(decodedResp);
+  const nodes = $('.userContent, .scaledImageFitWidth').toArray();
+
+  const posts = [];
+
+  for (let index = 0; index < nodes.length; index += 1) {
+    const element = nodes[index];
+    const nextElement = nodes[index + 1];
+    const post = {};
+    if (element.name === 'div') {
+      post.text = $(element).find('p')
+        .toArray()
+        .map(x => $(x))
+        .map(x => x.text())
+        .join(' ');
+
+      if (nextElement && nextElement.name === 'img') {
+        post.imgSrc = $(nextElement).attr('src');
+        index += 1;
+      }
+
+      posts.push(post);
+    }
+  }
+
+  const chosenPost = posts[Math.floor(Math.random() * posts.length)];
+
+  if (chosenPost.imgSrc) {
+    ctx.replyWithPhoto(chosenPost.imgSrc, {
+      caption: chosenPost.text
     });
   } else {
-    ctx.reply(chosenAtt.url);
+    ctx.reply(chosenPost.text);
   }
 };
