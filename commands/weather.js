@@ -5,6 +5,8 @@ const dateFormat = require('dateformat');
 
 module.exports = {
   initialHandler: async (ctx) => {
+    ctx.replyWithChatAction('typing');
+
     const today = new Date();
     const url = `https://api.data.gov.sg/v1/environment/2-hour-weather-forecast?date=${dateFormat(today, 'yyyy-mm-dd')}`;
     console.log(`Fetching '${url}'`);
@@ -33,7 +35,10 @@ module.exports = {
     if (relevantForecast === null) {
       ctx.replyWithMarkdown(
         'Invalid sector',
-        { reply_to_message_id: ctx.update.message.message_id }
+        {
+          reply_to_message_id: ctx.update.message.message_id,
+          reply_markup: { remove_keyboard: true, selective: true }
+        }
       );
       return;
     }
@@ -42,7 +47,10 @@ module.exports = {
 
     ctx.replyWithMarkdown(
       `*${isCatOne ? '' : 'Not'}* Cat 1 (valid until ${periodEnd})`,
-      { reply_to_message_id: ctx.update.message.message_id }
+      {
+        reply_to_message_id: ctx.update.message.message_id,
+        reply_markup: { remove_keyboard: true, selective: true }
+      }
     );
   }
 };

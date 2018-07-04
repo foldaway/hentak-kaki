@@ -34,7 +34,10 @@ module.exports = {
     if (subscribedSectors.indexOf(arg) === -1) {
       ctx.replyWithMarkdown(
         'Unknown sector. Action cancelled.',
-        { reply_to_message_id: ctx.update.message.message_id }
+        {
+          reply_to_message_id: ctx.update.message.message_id,
+          reply_markup: { remove_keyboard: true, selective: true }
+        }
       );
       return;
     }
@@ -44,7 +47,10 @@ module.exports = {
 
     ctx.replyWithMarkdown(
       `unsubscribed from '${arg}'`,
-      { reply_to_message_id: ctx.update.message.message_id }
+      {
+        reply_to_message_id: ctx.update.message.message_id,
+        reply_markup: { remove_keyboard: true, selective: true }
+      }
     );
   }
 };

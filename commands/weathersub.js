@@ -11,6 +11,8 @@ const lpush = promisify(redisClient.lpush).bind(redisClient);
 
 module.exports = {
   initialHandler: async (ctx) => {
+    ctx.replyWithChatAction('typing');
+
     const today = new Date();
     const url = `https://api.data.gov.sg/v1/environment/2-hour-weather-forecast?date=${dateFormat(today, 'yyyy-mm-dd')}`;
     console.log(`Fetching '${url}'`);
@@ -38,7 +40,10 @@ module.exports = {
 
     ctx.replyWithMarkdown(
       `subscribed to '${arg}'`,
-      { reply_to_message_id: ctx.update.message.message_id }
+      {
+        reply_to_message_id: ctx.update.message.message_id,
+        reply_markup: { remove_keyboard: true, selective: true }
+      }
     );
   }
 };
