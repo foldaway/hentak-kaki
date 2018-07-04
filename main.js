@@ -54,13 +54,17 @@ glob.sync('./commands/**/*.js').forEach((file) => {
           // Last resort. Fallback, can be used to show an error message
           asyncWrapFunc(exp.responseHandler)(ctx);
         }
-        ctx.scene.leave();
+        if (exp.manualSceneHandling !== 'true') {
+          ctx.scene.leave();
+        }
       });
     } else {
       // Single catch-all handler, for open-ended responses
       scene.on('message', (ctx) => {
         asyncWrapFunc(exp.responseHandler)(ctx);
-        ctx.scene.leave();
+        if (exp.manualSceneHandling !== 'true') {
+          ctx.scene.leave();
+        }
       });
     }
     stage.register(scene);
