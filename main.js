@@ -30,6 +30,7 @@ const asyncWrapFunc = (func) => async (...args) => {
   try {
     await func(...args);
   } catch (e) {
+    console.error(e);
     errorHandlerFn(...args)(e);
   }
 };
