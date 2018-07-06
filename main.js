@@ -54,7 +54,7 @@ glob.sync('./commands/**/*.js').forEach((file) => {
           // Last resort. Fallback, can be used to show an error message
           asyncWrapFunc(exp.responseHandler)(ctx);
         }
-        if (exp.manualSceneHandling) {
+        if (!exp.manualSceneHandling) {
           ctx.scene.leave();
         }
       });
@@ -62,7 +62,7 @@ glob.sync('./commands/**/*.js').forEach((file) => {
       // Single catch-all handler, for open-ended responses
       scene.on('message', (ctx) => {
         asyncWrapFunc(exp.responseHandler)(ctx);
-        if (exp.manualSceneHandling) {
+        if (!exp.manualSceneHandling) {
           ctx.scene.leave();
         }
       });
