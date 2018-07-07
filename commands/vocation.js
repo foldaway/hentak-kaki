@@ -13,6 +13,7 @@ const r = new Snoowrap({
 });
 
 const submissions = [
+  '8r475u', // 02/18
   '84rjsk', // 01/18
   '7jw0fh', // 04/17
   '7039qd', // 03/17
