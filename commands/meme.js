@@ -1,52 +1,59 @@
-const fetch = require('node-fetch');
-const cheerio = require('cheerio');
+const webdriver = require('selenium-webdriver');
+const { By, until } = require('selenium-webdriver');
+const chrome = require('selenium-webdriver/chrome');
+const firefox = require('selenium-webdriver/firefox');
 
 /* eslint-disable no-await-in-loop */
 
-module.exports = async (ctx) => {
-  let url = 'https://www.facebook.com/pages_reaction_units/more/?page_id=1562306407140115&cursor={%22timeline_section_cursor%22:{},%22has_next_page%22:true}&surface=www_pages_posts&unit_count=8&__user=0&__a=1';
+const options = new firefox.Options()
+  .addArguments('--headless');
 
+module.exports = async (ctx) => {
+  await ctx.reply('Fetching, this will take a while...');
   ctx.replyWithChatAction('typing');
 
-  const response = await fetch(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.1 Safari/605.1.15' },
-  }).then(r => r.text())
-    .then(r => r.match(/"__html":"(.*?)"}]],"jsmods"/)[1]);
+  let driver = new webdriver.Builder()
+    .forBrowser('firefox')
+    .setFirefoxOptions(options)
+    .build();
+  await driver.navigate().to('https://www.facebook.com/pg/MemedefSG/photos/?ref=page_internal');
+  await driver.wait(until.elementLocated(By.css('._2eea')), 10000);
+  const posts = await driver.findElements(By.css('._2eea'));
 
-  const decodedResp = JSON.parse(`"${response}"`).slice(1, -1);
+  const chosenPost = posts[Math.floor(Math.random() * (posts.length - 1))];
+  await driver.executeScript('arguments[0].scrollIntoView()', chosenPost);
 
-  const $ = cheerio.load(decodedResp);
-  const nodes = $('.userContent, .scaledImageFitWidth').toArray();
-
-  const posts = [];
-
-  for (let index = 0; index < nodes.length; index += 1) {
-    const element = nodes[index];
-    const nextElement = nodes[index + 1];
-    const post = {};
-    if (element.name === 'div') {
-      post.text = $(element).find('p')
-        .toArray()
-        .map(x => $(x))
-        .map(x => x.text())
-        .join(' ');
-
-      if (nextElement && nextElement.name === 'img') {
-        post.imgSrc = $(nextElement).attr('src');
-        index += 1;
-      }
-
-      posts.push(post);
-    }
+  try {
+    await chosenPost.click();
+  } catch (e) {
+    console.error(e);
+    const notNowButton = await driver.findElement(By.id('#expanding_cta_close_button'));
+    await notNowButton.click();
+    await chosenPost.click();
   }
 
-  const chosenPost = posts[Math.floor(Math.random() * posts.length)];
+  await driver.wait(until.elementLocated(By.css('._n3')), 1500);
 
-  if (chosenPost.imgSrc) {
-    ctx.replyWithPhoto(chosenPost.imgSrc, {
-      caption: chosenPost.text
+  let img = null;
+  let caption = '(no caption)';
+
+  try {
+    await driver.wait(until.elementLocated(By.css('.hasCaption')), 2000);
+    caption = await (await driver.findElement(By.css('.hasCaption'))).getText();
+  } catch (e) {}
+
+  try {
+    await driver.wait(until.elementLocated(By.css('img.spotlight')), 2000);
+    img = await (await driver.findElement(By.css('img.spotlight'))).getAttribute('src');
+  } catch (e) {}
+
+  if (img) {
+    ctx.replyWithPhoto(img, {
+      caption
     });
   } else {
-    ctx.reply(chosenPost.text);
+    ctx.reply(caption);
   }
+
+  await driver.quit();
 };
