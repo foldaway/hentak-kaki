@@ -43,7 +43,11 @@ glob.sync('./commands/**/*.js').forEach((file) => {
     bot.command(commandName, asyncWrapFunc(exp));
   } else if (exp instanceof Object) {
     const scene = new Scene(commandName);
-    scene.enter(asyncWrapFunc(exp.initialHandler));
+    if (exp.initialHandler) {
+      scene.enter(asyncWrapFunc(exp.initialHandler));
+    } else {
+      scene.enter(asyncWrapFunc(exp.responseHandler));
+    }
 
     if ('responseHandlers' in exp) {
       // Fixed-answer handlers
