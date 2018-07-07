@@ -10,7 +10,6 @@ const options = new firefox.Options()
 
 module.exports = async (ctx) => {
   await ctx.reply('Fetching, this will take a while...');
-  ctx.replyWithChatAction('typing');
 
   let driver = new webdriver.Builder()
     .forBrowser('firefox')
@@ -22,6 +21,8 @@ module.exports = async (ctx) => {
 
   const chosenPost = posts[Math.floor(Math.random() * (posts.length - 1))];
   await driver.executeScript('arguments[0].scrollIntoView()', chosenPost);
+
+  ctx.replyWithChatAction('typing');
 
   try {
     await chosenPost.click();
@@ -44,12 +45,12 @@ module.exports = async (ctx) => {
   try {
     await driver.wait(until.elementLocated(By.css('.hasCaption')), 2000);
     caption = await (await driver.findElement(By.css('.hasCaption'))).getText();
-  } catch (e) { throw e; }
+  } catch (e) { console.error(e); }
 
   try {
     await driver.wait(until.elementLocated(By.css('img.spotlight')), 2000);
     img = await (await driver.findElement(By.css('img.spotlight'))).getAttribute('src');
-  } catch (e) { throw e; }
+  } catch (e) { console.error(e); }
 
   if (img) {
     ctx.replyWithPhoto(img, {
