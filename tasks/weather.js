@@ -100,15 +100,15 @@ module.exports = {
 
       let text = '';
       if (nowAFs.length > 0) {
-        text += `It's now Cat 1 (until ${dateFormat(nowAFs[0].periodEnd, 'HHmm')})\n*${nowAFs.map(formatFunc).join('\n')}*\n`;
+        text += `It's now Cat 1 (until ${dateFormat(nowAFs[0].periodEnd, 'HHMM')})\n*${nowAFs.map(formatFunc).join('\n')}*\n`;
       }
 
       if (wasAFs.length > 0) {
-        text += `Cat 1 downgraded (since ${dateFormat(wasAFs[0].periodStart, 'HHmm')})\n*${wasAFs.map(formatFunc).join('\n')}*\n`;
+        text += `Cat 1 downgraded (since ${dateFormat(wasAFs[0].periodStart, 'HHMM')})\n*${wasAFs.map(formatFunc).join('\n')}*\n`;
       }
 
       if (extAFs.length > 0) {
-        text += `Cat 1 extended (until ${dateFormat(extAFs[0].periodEnd, 'HHmm')})\n*${extAFs.map(formatFunc).join('\n')}*\n`;
+        text += `Cat 1 extended (until ${dateFormat(extAFs[0].periodEnd, 'HHMM')})\n*${extAFs.map(formatFunc).join('\n')}*\n`;
       }
 
       if (text.length > 0) {
