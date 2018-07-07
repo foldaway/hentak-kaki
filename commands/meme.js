@@ -27,9 +27,13 @@ module.exports = async (ctx) => {
     await chosenPost.click();
   } catch (e) {
     console.error(e);
-    const notNowButton = await driver.findElement(By.id('#expanding_cta_close_button'));
-    await notNowButton.click();
-    await chosenPost.click();
+    try {
+      const notNowButton = await driver.findElement(By.id('#expanding_cta_close_button'));
+      await notNowButton.click();
+      await chosenPost.click();
+    } catch (ee) {
+      throw ee;
+    }
   }
 
   await driver.wait(until.elementLocated(By.css('._n3')), 1500);
@@ -40,12 +44,12 @@ module.exports = async (ctx) => {
   try {
     await driver.wait(until.elementLocated(By.css('.hasCaption')), 2000);
     caption = await (await driver.findElement(By.css('.hasCaption'))).getText();
-  } catch (e) {}
+  } catch (e) { throw e; }
 
   try {
     await driver.wait(until.elementLocated(By.css('img.spotlight')), 2000);
     img = await (await driver.findElement(By.css('img.spotlight'))).getAttribute('src');
-  } catch (e) {}
+  } catch (e) { throw e; }
 
   if (img) {
     ctx.replyWithPhoto(img, {
