@@ -1,7 +1,7 @@
 const webdriver = require('selenium-webdriver');
 const { By, until } = require('selenium-webdriver');
-const chrome = require('selenium-webdriver/chrome');
 const firefox = require('selenium-webdriver/firefox');
+require('geckodriver');
 
 /* eslint-disable no-await-in-loop */
 

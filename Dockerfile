@@ -10,7 +10,7 @@ RUN yarn
 
 FROM node:9-alpine
 WORKDIR /app
-RUN apk --update add tzdata
+RUN apk --update add tzdata firefox
 RUN ln -sf /usr/share/zoneinfo/Asia/Singapore /etc/localtime
 RUN echo "Asia/Singapore" >  /etc/timezone
 COPY . .
