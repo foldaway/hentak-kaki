@@ -11,7 +11,6 @@ const hget = promisify(redisClient.hget).bind(redisClient);
 const hset = promisify(redisClient.hset).bind(redisClient);
 
 const KEY_LATEST_UPDATE_TIMESTAMP = 'WEATHER_LATEST_UPDATE_TIMESTAMP';
-const KEY_LAST_FETCH_UPDATE_FORECASTS = 'WEATHER_LAST_FETCH_UPDATE_FORECASTS';
 const KEY_LAST_FETCH_UPDATE_PERIODENDS = 'WEATHER_LAST_FETCH_UPDATE_PERIODENDS';
 
 const CHANGETYPE = {
@@ -55,12 +54,10 @@ module.exports = {
       const previousForecast = previousItem.forecasts
         .find((forecast) => forecast.area === area).forecast;
 
-      const redisLastFetchedForecast = hget(KEY_LAST_FETCH_UPDATE_FORECASTS, area);
       const redisLastFetchedPeriodEnd = hget(KEY_LAST_FETCH_UPDATE_PERIODENDS, area);
 
       console.log(`Checking '${area}'. '${previousForecast}' => '${latestForecast}'`);
-      hset(KEY_LAST_FETCH_UPDATE_FORECASTS, area, latestForecast);
-      hset(KEY_LAST_FETCH_UPDATE_PERIODENDS, area, latestItem.valid_period.end);
+      hset(KEY_LAST_FETCH_UPDATE_PERIODENDS, area, dateFormat(latestItem.valid_period.end, 'HHMM'));
 
       const areaForecast = {
         name: area,
@@ -69,10 +66,9 @@ module.exports = {
         type: null
       };
 
-      if (redisLastFetchedPeriodEnd === latestItem.valid_period.end) {
+      if (redisLastFetchedPeriodEnd === dateFormat(latestItem.valid_period.end, 'HHMM')) {
         // No timing updates, ignore.
-      } else if (latestForecast.match(/Thunder/i) &&
-        (previousForecast.match(/Thunder/i) || redisLastFetchedForecast === latestForecast)) {
+      } else if (latestForecast.match(/Thunder/i) && previousForecast.match(/Thunder/i)) {
         areaForecast.type = CHANGETYPE.EXTENDED;
       } else if (latestForecast.match(/Thunder/i)) {
         areaForecast.type = CHANGETYPE.NOWCATONE;
