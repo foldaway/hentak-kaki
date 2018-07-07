@@ -161,7 +161,7 @@ const getRating = (points) => {
 module.exports = {
   manualSceneHandling: true,
   initialHandler: (ctx) => {
-    ctx.session.station = 'agegroup';
+    ctx.scene.state.station = 'agegroup';
     ctx.reply('What is your age group?', {
       reply_markup: {
         keyboard: ageGroups.map((text) => [{ text }]),
@@ -171,7 +171,7 @@ module.exports = {
     });
   },
   responseHandler: (ctx) => {
-    switch (ctx.session.station) {
+    switch (ctx.scene.state.station) {
       case 'agegroup': {
         const agi = ageGroups.indexOf(ctx.message.text);
         if (agi === -1) {
@@ -179,8 +179,8 @@ module.exports = {
           ctx.scene.leave();
           return;
         }
-        ctx.session.ageGroupIndex = agi;
-        ctx.session.station = 'pushups';
+        ctx.scene.state.ageGroupIndex = agi;
+        ctx.scene.state.station = 'pushups';
         ctx.reply('How many push-ups?', {
           reply_markup: {
             force_reply: true,
@@ -190,8 +190,8 @@ module.exports = {
         break;
       }
       case 'pushups':
-        ctx.session.pushups = Number(ctx.message.text);
-        ctx.session.station = 'situps';
+        ctx.scene.state.pushups = Number(ctx.message.text);
+        ctx.scene.state.station = 'situps';
         ctx.reply('How many sit-ups?', {
           reply_markup: {
             force_reply: true,
@@ -200,8 +200,8 @@ module.exports = {
         });
         break;
       case 'situps':
-        ctx.session.situps = Number(ctx.message.text);
-        ctx.session.station = 'run';
+        ctx.scene.state.situps = Number(ctx.message.text);
+        ctx.scene.state.station = 'run';
         ctx.reply('How long was your run?', {
           reply_markup: {
             force_reply: true,
@@ -211,10 +211,10 @@ module.exports = {
         break;
       case 'run': {
         const split = ctx.message.text.split(':');
-        ctx.session.run = (Number(split[0]) * 60) + Number(split[1]);
+        ctx.scene.state.run = (Number(split[0]) * 60) + Number(split[1]);
         const {
           ageGroupIndex, pushups, situps, run
-        } = ctx.session;
+        } = ctx.scene.state;
         const points = calculateScore(ageGroupIndex, pushups, situps, run);
         const totalScore = points.pushups + points.situps + points.run;
         ctx.replyWithMarkdown(`*${pushups}* push-ups = *${points.pushups}* pts
