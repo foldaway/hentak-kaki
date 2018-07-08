@@ -5,7 +5,7 @@ COPY package.json .
 COPY yarn.lock .
 
 RUN apk --update add --virtual build_deps \
-    build-base libc-dev linux-headers
+    build-base libc-dev linux-headers python
 RUN yarn
 
 FROM node:10-alpine
