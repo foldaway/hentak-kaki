@@ -1,4 +1,4 @@
-FROM node:9-alpine AS deps
+FROM node:10-alpine AS deps
 
 WORKDIR /app
 COPY package.json .
@@ -8,10 +8,9 @@ RUN apk --update add --virtual build_deps \
     build-base libc-dev linux-headers
 RUN yarn
 
-FROM node:9-alpine
+FROM node:10-alpine
 WORKDIR /app
-RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
-RUN apk --update add tzdata firefox
+RUN apk --update add tzdata chromium chromium-chromedriver
 RUN ln -sf /usr/share/zoneinfo/Asia/Singapore /etc/localtime
 RUN echo "Asia/Singapore" >  /etc/timezone
 COPY . .

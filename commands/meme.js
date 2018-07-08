@@ -1,19 +1,18 @@
 const webdriver = require('selenium-webdriver');
-const { By, until } = require('selenium-webdriver');
-const firefox = require('selenium-webdriver/firefox');
-require('geckodriver');
+const { By, until, Browser } = require('selenium-webdriver');
+const chrome = require('selenium-webdriver/chrome');
 
 /* eslint-disable no-await-in-loop */
 
-const options = new firefox.Options()
+const options = new chrome.Options()
   .addArguments('--headless');
 
 module.exports = async (ctx) => {
   await ctx.reply('Fetching, this will take a while...');
 
   let driver = new webdriver.Builder()
-    .forBrowser('firefox')
-    .setFirefoxOptions(options)
+    .forBrowser(Browser.CHROME)
+    .setChromeOptions(options)
     .build();
   await driver.navigate().to('https://www.facebook.com/pg/MemedefSG/photos/?ref=page_internal');
   await driver.wait(until.elementLocated(By.css('._2eea')), 10000);
