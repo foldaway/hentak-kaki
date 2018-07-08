@@ -111,7 +111,10 @@ module.exports = {
               return;
             }
             ctx.replyWithMarkdown(
-              `You are subscribed to:\n${subscribedSectors.reverse().join('\n')}`,
+              subscribedSectors
+                .reverse()
+                .map((sector) => `*- ${sector}*`)
+                .join('\n'),
               { reply_to_message_id: ctx.update.message.message_id }
             );
             ctx.scene.leave();
@@ -163,8 +166,8 @@ module.exports = {
         await lpush(ctx.chat.id, arg);
         await lpush(arg, ctx.chat.id);
 
-        ctx.replyWithMarkdown(
-          `subscribed to '${arg}'`,
+        ctx.reply(
+          'Subscribed.',
           {
             reply_to_message_id: ctx.update.message.message_id,
             reply_markup: { remove_keyboard: true, selective: true }
@@ -191,8 +194,8 @@ module.exports = {
         await lrem(ctx.chat.id, 0, arg);
         await lrem(arg, 0, ctx.chat.id);
 
-        ctx.replyWithMarkdown(
-          `unsubscribed from '${arg}'`,
+        ctx.reply(
+          'Unsubscribed.',
           {
             reply_to_message_id: ctx.update.message.message_id,
             reply_markup: { remove_keyboard: true, selective: true }
