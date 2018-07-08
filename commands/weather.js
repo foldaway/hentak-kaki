@@ -20,14 +20,15 @@ const OPTIONS = [
 
 module.exports = {
   manualSceneHandling: true,
-  initialHandler: (ctx) => {
-    ctx.reply('Choose an action.', {
+  initialHandler: async (ctx) => {
+    const message = await ctx.reply('Choose an action.', {
       reply_markup: {
         keyboard: OPTIONS.map((text) => [{ text }]),
         one_time_keyboard: true,
         selective: true
       }
     });
+    ctx.scene.state.prevMessage = message;
   },
   responseHandler: async (ctx) => {
     const today = new Date();
@@ -38,6 +39,11 @@ module.exports = {
     const { area_metadata, items } = await fetch(`https://api.data.gov.sg/v1/environment/2-hour-weather-forecast?date=${dateFormat(today, 'yyyy-mm-dd')}`)
       .then(r => r.json());
 
+    const { prevMessage } = ctx.scene.state;
+    if (prevMessage) {
+      ctx.tg.deleteMessage(ctx.chat.id, prevMessage.message_id);
+    }
+
     switch (OPTIONS.indexOf(ctx.scene.state.stage)) {
       case -1: { // User chose action button
         if (OPTIONS.indexOf(arg) !== -1) {
@@ -45,7 +51,7 @@ module.exports = {
         }
         switch (OPTIONS.indexOf(arg)) {
           case 0: {
-            ctx.reply('Select your sector.', {
+            const message = await ctx.reply('Select your sector.', {
               reply_markup: {
                 keyboard: area_metadata.map((area) => [{
                   text: area.name
@@ -55,11 +61,12 @@ module.exports = {
                 selective: true
               }
             });
+            ctx.scene.state.prevMessage = message;
             break;
           }
           case 1: {
             const subscribedSectors = await lrange(ctx.chat.id, 0, -1);
-            ctx.reply('Select your sector.', {
+            const message = await ctx.reply('Select your sector.', {
               reply_markup: {
                 keyboard: area_metadata
                   .filter((area) => subscribedSectors.indexOf(area.name) === -1)
@@ -71,6 +78,7 @@ module.exports = {
                 selective: true
               }
             });
+            ctx.scene.state.prevMessage = message;
             break;
           }
           case 2: {
@@ -80,7 +88,7 @@ module.exports = {
               ctx.scene.leave();
               return;
             }
-            ctx.reply('Select a sector to unsubscribe from.', {
+            const message = await ctx.reply('Select a sector to unsubscribe from.', {
               reply_markup: {
                 keyboard: subscribedSectors
                   .reverse()
@@ -92,6 +100,7 @@ module.exports = {
                 selective: true
               }
             });
+            ctx.scene.state.prevMessage = message;
             break;
           }
           case 3: { // View
