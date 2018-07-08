@@ -10,7 +10,8 @@ RUN yarn
 
 FROM node:9-alpine
 WORKDIR /app
-RUN apk --update add tzdata firefox-esr
+RUN apk add firefox --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
+RUN apk --update add tzdata
 RUN ln -sf /usr/share/zoneinfo/Asia/Singapore /etc/localtime
 RUN echo "Asia/Singapore" >  /etc/timezone
 COPY . .
