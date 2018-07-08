@@ -44,13 +44,28 @@ module.exports = {
           ctx.scene.state.stage = arg;
         }
         switch (OPTIONS.indexOf(arg)) {
-          case 0:
-          case 1: {
+          case 0: {
             ctx.reply('Select your sector.', {
               reply_markup: {
                 keyboard: area_metadata.map((area) => [{
                   text: area.name
                 }]),
+                one_time_keyboard: true,
+                force_reply: true,
+                selective: true
+              }
+            });
+            break;
+          }
+          case 1: {
+            const subscribedSectors = await lrange(ctx.chat.id, 0, -1);
+            ctx.reply('Select your sector.', {
+              reply_markup: {
+                keyboard: area_metadata
+                  .filter((area) => subscribedSectors.indexOf(area.name) === -1)
+                  .map((area) => [{
+                    text: area.name
+                  }]),
                 one_time_keyboard: true,
                 force_reply: true,
                 selective: true
