@@ -4,8 +4,14 @@ const chrome = require('selenium-webdriver/chrome');
 
 /* eslint-disable no-await-in-loop */
 
-const options = new chrome.Options()
+let options = new chrome.Options()
   .addArguments('--headless');
+
+if (process.platform === 'linux') {
+  options = options.addArguments('--no-sandbox')
+    .addArguments('--disable-gpu')
+    .setChromeBinaryPath('/usr/bin/chromium-browser');
+}
 
 module.exports = async (ctx) => {
   await ctx.reply('Fetching, this will take a while...');
