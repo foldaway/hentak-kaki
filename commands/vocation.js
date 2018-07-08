@@ -13,6 +13,7 @@ const r = new Snoowrap({
 });
 
 const submissions = [
+  '8r475u', // 02/18
   '84rjsk', // 01/18
   '7jw0fh', // 04/17
   '7039qd', // 03/17
@@ -50,13 +51,14 @@ module.exports = {
     }
     const chosenComment = arraySample(relevantComments);
     console.log(`[VOCATION] Chosen ${chosenComment.permalink}`);
-    const chosenCommentReplies = chosenComment.replies;
+    const sampleReplies = chosenComment.replies
+      .sort(() => 0.5 - Math.random())
+      .slice(0, 5);
 
-    const chosenCommentReply = arraySample(chosenCommentReplies);
     ctx.replyWithMarkdown(
       `*OP*: _${turndownService.turndown(chosenComment.body)}_
   
-*Advice:* ${chosenCommentReply.body}`,
+${sampleReplies.map((reply) => `*/u/${reply.author.name}:* ${reply.body}`).join('\n')}`,
       { reply_to_message_id: ctx.update.message.message_id }
     );
   }
