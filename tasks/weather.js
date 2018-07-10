@@ -22,7 +22,7 @@ const CHANGETYPE = {
 /* eslint-disable camelcase, no-await-in-loop */
 
 module.exports = {
-  cron: '*/2   *   *   *   *',
+  cron: '*/1   *   *   *   *',
   func: async (bot) => {
     const today = new Date();
     const url = `https://api.data.gov.sg/v1/environment/2-hour-weather-forecast?date=${dateFormat(today, 'yyyy-mm-dd')}`;
@@ -48,20 +48,23 @@ module.exports = {
     const areaForecastMap = {};
     const chatIdsSet = new Set();
 
+    console.log(`Processing ${areas.length} areas`);
+
     for (const area of areas) {
       const latestForecast = latestItem.forecasts
         .find((forecast) => forecast.area === area).forecast;
       const previousForecast = previousItem.forecasts
         .find((forecast) => forecast.area === area).forecast;
 
-      const redisLastFetchedPeriodEnd = hget(KEY_LAST_FETCH_UPDATE_PERIODENDS, area);
+      const redisLastFetchedPeriodEnd = await hget(KEY_LAST_FETCH_UPDATE_PERIODENDS, area);
+      const validPeriodEnd = dateFormat(latestItem.valid_period.end, 'HHMM');
 
-      console.log(`Checking '${area}'. '${previousForecast}' => '${latestForecast}'`);
-      hset(KEY_LAST_FETCH_UPDATE_PERIODENDS, area, dateFormat(latestItem.valid_period.end, 'HHMM'));
+      console.log(`Checking '${area}'. '${previousForecast}' (until ${redisLastFetchedPeriodEnd}) => '${latestForecast}' (until ${validPeriodEnd})`);
+      await hset(KEY_LAST_FETCH_UPDATE_PERIODENDS, area, validPeriodEnd);
 
       const areaForecast = {
         name: area,
-        periodEnd: latestItem.valid_period.end,
+        periodEnd: validPeriodEnd,
         periodStart: latestItem.valid_period.start,
         type: null
       };
