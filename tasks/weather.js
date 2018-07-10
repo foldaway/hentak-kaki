@@ -99,7 +99,7 @@ module.exports = {
 
       let text = '';
       if (nowAFs.length > 0) {
-        text += `It's now Cat 1 (until ${dateFormat(nowAFs[0].periodEnd, 'HHMM')})\n*${nowAFs.map(formatFunc).join('\n')}*\n`;
+        text += `Cat 1 started (until ${dateFormat(nowAFs[0].periodEnd, 'HHMM')})\n*${nowAFs.map(formatFunc).join('\n')}*\n`;
       }
 
       if (wasAFs.length > 0) {
