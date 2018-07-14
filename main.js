@@ -4,7 +4,7 @@ const path = require('path');
 const { CronJob } = require('cron');
 
 const Telegraf = require('telegraf');
-const Telegram = require('telegraf/telegram')
+const Telegram = require('telegraf/telegram');
 const session = require('telegraf/session');
 const Stage = require('telegraf/stage');
 const Scene = require('telegraf/scenes/base');
@@ -81,6 +81,7 @@ glob.sync('./tasks/**/*.js').forEach((file) => {
     cronTime: exp.cron,
     onTick: async () => exp.func(telegram),
     start: false,
+    runOnInit: true,
     timeZone: 'Asia/Singapore'
   });
   job.start();
