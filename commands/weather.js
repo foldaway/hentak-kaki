@@ -65,7 +65,7 @@ module.exports = {
           }
           case 1: {
             const subscribedSectors = await lrange(ctx.chat.id, 0, -1);
-            const message = await ctx.reply('Select your sector.', {
+            const message = await ctx.reply('Select a sector.', {
               reply_markup: {
                 keyboard: areas
                   .filter((area) => subscribedSectors.indexOf(area) === -1)
@@ -88,7 +88,7 @@ module.exports = {
             const message = await ctx.reply('Select a sector to unsubscribe from.', {
               reply_markup: {
                 keyboard: subscribedSectors
-                  .reverse()
+                  .sort((a, b) => a.localeCompare(b))
                   .map((area) => [{
                     text: area
                   }]),
@@ -109,7 +109,7 @@ module.exports = {
             }
             ctx.replyWithMarkdown(
               subscribedSectors
-                .reverse()
+                .sort((a, b) => a.localeCompare(b))
                 .map((sector) => `*- ${sector}*`)
                 .join('\n'),
               { reply_to_message_id: ctx.update.message.message_id }
