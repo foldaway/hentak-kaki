@@ -8,6 +8,8 @@ const lrange = promisify(redisClient.lrange).bind(redisClient);
 const lpush = promisify(redisClient.lpush).bind(redisClient);
 const lrem = promisify(redisClient.lrem).bind(redisClient);
 
+const KEY_SECTOR_LIST = 'WEATHER_SECTOR_LIST';
+
 /* eslint-disable camelcase */
 
 const OPTIONS = [
@@ -36,8 +38,7 @@ module.exports = {
 
     ctx.replyWithChatAction('typing');
 
-    const { area_metadata, items } = await fetch(`https://api.data.gov.sg/v1/environment/2-hour-weather-forecast?date=${dateFormat(today, 'yyyy-mm-dd')}`)
-      .then(r => r.json());
+    const areas = await lrange(KEY_SECTOR_LIST, 0, -1);
 
     const { prevMessage } = ctx.scene.state;
     if (prevMessage) {
@@ -53,9 +54,7 @@ module.exports = {
           case 0: {
             const message = await ctx.reply('Select your sector.', {
               reply_markup: {
-                keyboard: area_metadata.map((area) => [{
-                  text: area.name
-                }]),
+                keyboard: areas.map((text) => [{ text }]),
                 one_time_keyboard: true,
                 force_reply: true,
                 selective: true
@@ -66,13 +65,11 @@ module.exports = {
           }
           case 1: {
             const subscribedSectors = await lrange(ctx.chat.id, 0, -1);
-            const message = await ctx.reply('Select your sector.', {
+            const message = await ctx.reply('Select a sector.', {
               reply_markup: {
-                keyboard: area_metadata
-                  .filter((area) => subscribedSectors.indexOf(area.name) === -1)
-                  .map((area) => [{
-                    text: area.name
-                  }]),
+                keyboard: areas
+                  .filter((area) => subscribedSectors.indexOf(area) === -1)
+                  .map((text) => [{ text }]),
                 one_time_keyboard: true,
                 force_reply: true,
                 selective: true
@@ -91,7 +88,7 @@ module.exports = {
             const message = await ctx.reply('Select a sector to unsubscribe from.', {
               reply_markup: {
                 keyboard: subscribedSectors
-                  .reverse()
+                  .sort((a, b) => a.localeCompare(b))
                   .map((area) => [{
                     text: area
                   }]),
@@ -112,7 +109,7 @@ module.exports = {
             }
             ctx.replyWithMarkdown(
               subscribedSectors
-                .reverse()
+                .sort((a, b) => a.localeCompare(b))
                 .map((sector) => `*- ${sector}*`)
                 .join('\n'),
               { reply_to_message_id: ctx.update.message.message_id }
@@ -135,6 +132,10 @@ module.exports = {
       }
       case 0: { // Check
         ctx.scene.leave();
+
+        const { items } = await fetch(`https://api.data.gov.sg/v1/environment/2-hour-weather-forecast?date=${dateFormat(today, 'yyyy-mm-dd')}`)
+          .then(r => r.json());
+
         const latestItem = items[items.length - 1];
         const periodEnd = dateFormat(latestItem.valid_period.end, 'HHMM');
         const relevantForecast = latestItem.forecasts
