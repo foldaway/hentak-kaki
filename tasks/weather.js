@@ -69,7 +69,7 @@ module.exports = {
 
       const areaForecast = {
         name: area,
-        periodEnd: validPeriodEnd,
+        periodEnd: latestItem.valid_period.end,
         periodStart: latestItem.valid_period.start,
         type: null
       };
