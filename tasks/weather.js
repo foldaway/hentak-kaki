@@ -59,7 +59,6 @@ module.exports = {
       const redisLastFetchedPeriodEnd = await hget(KEY_LAST_FETCH_UPDATE_PERIODENDS, area);
       const validPeriodEnd = dateFormat(latestItem.valid_period.end, 'HHMM');
 
-      console.log(`Checking '${area}'. '${previousForecast}' (until ${redisLastFetchedPeriodEnd}) => '${latestForecast}' (until ${validPeriodEnd})`);
       await hset(KEY_LAST_FETCH_UPDATE_PERIODENDS, area, validPeriodEnd);
 
       const areaForecast = {
@@ -78,6 +77,8 @@ module.exports = {
       } else if (previousForecast.match(/Thunder/i)) {
         areaForecast.type = CHANGETYPE.WASCATONE;
       }
+
+      console.log(`[${area}] '${previousForecast}' (until ${redisLastFetchedPeriodEnd}) => '${latestForecast}' (until ${validPeriodEnd}) === ${areaForecast.type}`);
 
       if (areaForecast.type) {
         areaForecastMap[area] = areaForecast;
