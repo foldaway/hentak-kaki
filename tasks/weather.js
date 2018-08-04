@@ -6,12 +6,15 @@ const { promisify } = require('util');
 const redisClient = redis.createClient(process.env.REDIS_URL || null);
 const get = promisify(redisClient.get).bind(redisClient);
 const set = promisify(redisClient.set).bind(redisClient);
+const del = promisify(redisClient.del).bind(redisClient);
 const lrange = promisify(redisClient.lrange).bind(redisClient);
+const lpush = promisify(redisClient.lpush).bind(redisClient);
 const hget = promisify(redisClient.hget).bind(redisClient);
 const hset = promisify(redisClient.hset).bind(redisClient);
 
 const KEY_LATEST_UPDATE_TIMESTAMP = 'WEATHER_LATEST_UPDATE_TIMESTAMP';
 const KEY_LAST_FETCH_UPDATE_PERIODENDS = 'WEATHER_LAST_FETCH_UPDATE_PERIODENDS';
+const KEY_SECTOR_LIST = 'WEATHER_SECTOR_LIST';
 
 const CHANGETYPE = {
   WASCATONE: 'WASCATONE',
@@ -31,6 +34,8 @@ module.exports = {
       .then(r => r.json());
 
     const areas = area_metadata.map((area) => area.name);
+    await del(KEY_SECTOR_LIST);
+    await lpush(KEY_SECTOR_LIST, ...areas.reverse());
 
     if (items.length <= 2) {
       console.log('Not enough items to compare');
@@ -63,7 +68,7 @@ module.exports = {
 
       const areaForecast = {
         name: area,
-        periodEnd: validPeriodEnd,
+        periodEnd: latestItem.valid_period.end,
         periodStart: latestItem.valid_period.start,
         type: null
       };
