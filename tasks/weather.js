@@ -73,7 +73,8 @@ module.exports = {
         type: null
       };
 
-      if (redisLastFetchedPeriodEnd === dateFormat(latestItem.valid_period.end, 'HHMM')) {
+      if (redisLastFetchedPeriodEnd === dateFormat(latestItem.valid_period.end, 'HHMM') &&
+        previousForecast === latestForecast) {
         // No timing updates, ignore.
       } else if (latestForecast.match(/Thunder/i) && previousForecast.match(/Thunder/i)) {
         areaForecast.type = CHANGETYPE.EXTENDED;
