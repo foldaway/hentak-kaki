@@ -7,10 +7,10 @@ const chrome = require('selenium-webdriver/chrome');
 let options = new chrome.Options()
   .addArguments('--headless');
 
-if (process.platform === 'linux') {
+if (process.env.GOOGLE_CHROME_SHIM) {
   options = options.addArguments('--no-sandbox')
     .addArguments('--disable-gpu')
-    .setChromeBinaryPath('/usr/bin/chromium-browser');
+    .setChromeBinaryPath(process.env.GOOGLE_CHROME_SHIM);
 }
 
 module.exports = async (ctx) => {
