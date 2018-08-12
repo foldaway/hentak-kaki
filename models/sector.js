@@ -6,9 +6,10 @@ module.exports = (sequelize, DataTypes) => {
     latest_forecast: DataTypes.TEXT,
     previous_forecast_period_end: DataTypes.DATE,
     latest_forecast_period_end: DataTypes.DATE
-  }, {});
+  }, { underscored: true });
   Sector.associate = function(models) {
     // associations can be defined here
+    Sector.hasMany(models.Subscription);
   };
   return Sector;
 };
