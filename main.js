@@ -88,4 +88,10 @@ glob.sync('./tasks/**/*.js').forEach((file) => {
 });
 
 bot.command('cancel', leave());
-bot.startPolling();
+
+if (process.env.NODE_ENV === 'production') {
+  bot.telegram.setWebhook('https://hentak-kaki.herokuapp.com/telegram');
+  bot.startWebhook('/telegram', null, process.env.PORT);
+} else {
+  bot.startPolling();
+}
