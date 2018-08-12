@@ -1,14 +1,7 @@
 const fetch = require('node-fetch');
 const dateFormat = require('dateformat');
-const redis = require('redis');
-const { promisify } = require('util');
 
-const redisClient = redis.createClient(process.env.REDIS_URL || null);
-const lrange = promisify(redisClient.lrange).bind(redisClient);
-const lpush = promisify(redisClient.lpush).bind(redisClient);
-const lrem = promisify(redisClient.lrem).bind(redisClient);
-
-const KEY_SECTOR_LIST = 'WEATHER_SECTOR_LIST';
+const models = require('../models');
 
 /* eslint-disable camelcase */
 
@@ -38,12 +31,29 @@ module.exports = {
 
     ctx.replyWithChatAction('typing');
 
-    const areas = await lrange(KEY_SECTOR_LIST, 0, -1);
+    const sectors = await models.Sector.findAll({
+      order: ['name']
+    });
 
     const { prevMessage } = ctx.scene.state;
     if (prevMessage) {
       ctx.tg.deleteMessage(ctx.chat.id, prevMessage.message_id);
     }
+
+    const [subscriber] = await models.Subscriber.findOrCreate({
+      where: {
+        chat_id: `${ctx.chat.id}`
+      }
+    });
+
+    const subscribedSectors = await models.Sector.findAll({
+      include: [{
+        model: models.Subscription,
+        where: {
+          subscriber_id: subscriber.id
+        }
+      }]
+    });
 
     switch (OPTIONS.indexOf(ctx.scene.state.stage)) {
       case -1: { // User chose action button
@@ -54,7 +64,9 @@ module.exports = {
           case 0: {
             const message = await ctx.reply('Select your sector.', {
               reply_markup: {
-                keyboard: areas.map((text) => [{ text }]),
+                keyboard: sectors
+                  .map((sector) => sector.name)
+                  .map((text) => [{ text }]),
                 one_time_keyboard: true,
                 force_reply: true,
                 selective: true
@@ -64,11 +76,11 @@ module.exports = {
             break;
           }
           case 1: {
-            const subscribedSectors = await lrange(ctx.chat.id, 0, -1);
             const message = await ctx.reply('Select a sector.', {
               reply_markup: {
-                keyboard: areas
-                  .filter((area) => subscribedSectors.indexOf(area) === -1)
+                keyboard: sectors
+                  .map((sector) => sector.name)
+                  .filter((sector) => subscribedSectors.indexOf(sector) === -1)
                   .map((text) => [{ text }]),
                 one_time_keyboard: true,
                 force_reply: true,
@@ -79,7 +91,6 @@ module.exports = {
             break;
           }
           case 2: {
-            const subscribedSectors = await lrange(ctx.chat.id, 0, -1);
             if (subscribedSectors.length === 0) {
               ctx.reply('You are not subscribed to any sectors');
               ctx.scene.leave();
@@ -88,10 +99,9 @@ module.exports = {
             const message = await ctx.reply('Select a sector to unsubscribe from.', {
               reply_markup: {
                 keyboard: subscribedSectors
+                  .map((sector) => sector.name)
                   .sort((a, b) => a.localeCompare(b))
-                  .map((area) => [{
-                    text: area
-                  }]),
+                  .map((text) => [{ text }]),
                 one_time_keyboard: true,
                 force_reply: true,
                 selective: true
@@ -101,7 +111,6 @@ module.exports = {
             break;
           }
           case 3: { // View
-            const subscribedSectors = await lrange(ctx.chat.id, 0, -1);
             if (subscribedSectors.length === 0) {
               ctx.reply('You are not subscribed to any sectors');
               ctx.scene.leave();
@@ -109,6 +118,7 @@ module.exports = {
             }
             ctx.replyWithMarkdown(
               subscribedSectors
+                .map((sector) => sector.name)
                 .sort((a, b) => a.localeCompare(b))
                 .map((sector) => `*- ${sector}*`)
                 .join('\n'),
@@ -164,8 +174,22 @@ module.exports = {
         break;
       }
       case 1: { // Subscribe
-        await lpush(ctx.chat.id, arg);
-        await lpush(arg, ctx.chat.id);
+        const sector = await models.Sector.find({
+          where: {
+            name: arg
+          }
+        });
+        if (sector === null) {
+          ctx.reply('Invalid sector');
+          ctx.scene.leave();
+          break;
+        }
+        await models.Subscription.findOrCreate({
+          where: {
+            subscriber_id: subscriber.id,
+            sector_id: sector.id
+          }
+        });
 
         ctx.reply(
           'Subscribed.',
@@ -179,9 +203,16 @@ module.exports = {
       }
       case 2: { // Unsub
         ctx.scene.leave();
-        const subscribedSectors = await lrange(ctx.chat.id, 0, -1);
 
-        if (subscribedSectors.indexOf(arg) === -1) {
+        const sector = await models.Sector.find({
+          where: {
+            name: arg
+          }
+        });
+
+        if (sector === null || subscribedSectors
+          .map((s) => s.name)
+          .indexOf(arg) === -1) {
           ctx.replyWithMarkdown(
             'Unknown sector. Action cancelled.',
             {
@@ -192,8 +223,20 @@ module.exports = {
           return;
         }
 
-        await lrem(ctx.chat.id, 0, arg);
-        await lrem(arg, 0, ctx.chat.id);
+        const subscription = await models.Subscription.find({
+          where: {
+            subscriber_id: subscriber.id,
+            sector_id: sector.id
+          }
+        });
+
+        if (subscription === null) {
+          ctx.reply(`You are not subscribed to '${arg}'`);
+          ctx.scene.leave();
+          break;
+        }
+
+        await subscription.destroy();
 
         ctx.reply(
           'Unsubscribed.',

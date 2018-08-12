@@ -14,14 +14,18 @@
     "pryjs": "^1.0.3"
   },
   "scripts": {
-    "start": "node main.js"
+    "start": "node main.js",
+    "sequelize": "sequelize"
   },
   "dependencies": {
     "dateformat": "^3.0.3",
     "dotenv": "^5.0.1",
     "node-fetch": "^2.1.1",
+    "pg": "^7.4.3",
     "redis": "^2.8.0",
     "selenium-webdriver": "^4.0.0-alpha.1",
+    "sequelize": "^4.38.0",
+    "sequelize-cli": "^4.0.0",
     "snoowrap": "^1.15.2",
     "telegraf": "^3.19.0",
     "turndown": "^4.0.1"
