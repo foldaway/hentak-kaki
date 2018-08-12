@@ -14,7 +14,8 @@
     "pryjs": "^1.0.3"
   },
   "scripts": {
-    "start": "node main.js"
+    "start": "node main.js",
+    "sequelize": "sequelize"
   },
   "dependencies": {
     "dateformat": "^3.0.3",
