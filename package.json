@@ -20,6 +20,7 @@
     "dateformat": "^3.0.3",
     "dotenv": "^5.0.1",
     "node-fetch": "^2.1.1",
+    "pg": "^7.4.3",
     "redis": "^2.8.0",
     "selenium-webdriver": "^4.0.0-alpha.1",
     "sequelize": "^4.38.0",
