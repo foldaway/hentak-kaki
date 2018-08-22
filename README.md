@@ -3,6 +3,11 @@
 
 This is a bot built to serve NSmen.
 
+## Requirements
+This app requires:
+- Postgres 9.x+ (for persistent data)
+- Redis (for dispensable key-value data)
+
 ## Running
 ### Database Setup
 `$ yarn sequelize db:create`  
