@@ -130,6 +130,7 @@ module.exports = {
       }
 
       if (text.length > 0) {
+        console.log(`[${subscriber.id}] Notifying of now=${nowAFs.length} was=${wasAFs.length} ext=${extAFs.length}`);
         bot.sendMessage(subscriber.get('chat_id'), text, { parse_mode: 'markdown' });
       }
     }
