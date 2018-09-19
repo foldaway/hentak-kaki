@@ -103,6 +103,8 @@ module.exports = {
     const formatFunc = (af) => `- ${af.name}`;
 
     const subscribers = await models.Subscriber.findAll();
+    
+    console.log(`Processing ${subscribers.length} subscribers.`);
 
     for (const subscriber of subscribers) {
       const chatIdAreas = (await models.Subscription.findAll({
