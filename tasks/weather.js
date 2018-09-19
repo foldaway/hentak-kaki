@@ -103,7 +103,7 @@ module.exports = {
     const formatFunc = (af) => `- ${af.name}`;
 
     const subscribers = await models.Subscriber.findAll();
-    
+
     console.log(`Processing ${subscribers.length} subscribers.`);
 
     for (const subscriber of subscribers) {
@@ -113,6 +113,7 @@ module.exports = {
         }
       })).map((subscription) => subscription.getSector().get('name'))
         .filter((sectorName) => sectorName in areaForecastMap);
+      console.log(`Subscriber ${subscriber} has ${chatIdAreas} areas,`);
 
       const nowAFs = chatIdAreas.filter((area) => area.type === CHANGETYPE.NOWCATONE);
       const wasAFs = chatIdAreas.filter((area) => area.type === CHANGETYPE.WASCATONE);
