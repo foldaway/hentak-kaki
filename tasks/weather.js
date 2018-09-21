@@ -113,7 +113,7 @@ module.exports = {
         }
       })).map((subscription) => subscription.getSector().get('name'))
         .filter((sectorName) => sectorName in areaForecastMap);
-      console.log(`Subscriber ${subscriber} has ${chatIdAreas} areas,`);
+      console.log(`Subscriber ${subscriber.get('chat_id')} has ${chatIdAreas.length} areas,`);
 
       const nowAFs = chatIdAreas.filter((area) => area.type === CHANGETYPE.NOWCATONE);
       const wasAFs = chatIdAreas.filter((area) => area.type === CHANGETYPE.WASCATONE);
@@ -135,6 +135,8 @@ module.exports = {
       if (text.length > 0) {
         console.log(`[${subscriber.id}] Notifying of now=${nowAFs.length} was=${wasAFs.length} ext=${extAFs.length}`);
         bot.sendMessage(subscriber.get('chat_id'), text, { parse_mode: 'markdown' });
+      } else {
+        console.log(`[${subscriber.id}] Nothing to notify`);
       }
     }
   }
