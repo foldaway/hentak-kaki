@@ -2,6 +2,7 @@ const fetch = require('node-fetch');
 const dateFormat = require('dateformat');
 const redis = require('redis');
 const { promisify } = require('util');
+const { Op } = require('sequelize');
 
 const models = require('../models');
 
@@ -107,17 +108,27 @@ module.exports = {
     console.log(`Processing ${subscribers.length} subscribers.`);
 
     for (const subscriber of subscribers) {
-      const chatIdAreas = (await models.Subscription.findAll({
+      const relevantSubscriptions = await models.Subscription.findAll({
         where: {
           subscriber_id: subscriber.id
-        }
-      })).map((subscription) => subscription.getSector().get('name'))
-        .filter((sectorName) => sectorName in areaForecastMap);
-      console.log(`Subscriber ${subscriber.get('chat_id')} has ${chatIdAreas.length} areas,`);
+        },
+        include: [{
+          model: models.Sector,
+          where: {
+            name: {
+              [Op.in]: Object.keys(areaForecastMap)
+            }
+          }
+        }]
+      });
 
-      const nowAFs = chatIdAreas.filter((area) => area.type === CHANGETYPE.NOWCATONE);
-      const wasAFs = chatIdAreas.filter((area) => area.type === CHANGETYPE.WASCATONE);
-      const extAFs = chatIdAreas.filter((area) => area.type === CHANGETYPE.EXTENDED);
+      console.log(`Subscriber ${subscriber.get('chat_id')} to notify: ${relevantSubscriptions.length}`);
+
+      const relevantSectors = relevantSubscriptions.map((sub) => sub.Sector);
+
+      const nowAFs = relevantSectors.filter((sector) => areaForecastMap[sector.name].type === CHANGETYPE.NOWCATONE);
+      const wasAFs = relevantSectors.filter((sector) => areaForecastMap[sector.name].type === CHANGETYPE.WASCATONE);
+      const extAFs = relevantSectors.filter((sector) => areaForecastMap[sector.name].type === CHANGETYPE.EXTENDED);
 
       let text = '';
       if (nowAFs.length > 0) {
