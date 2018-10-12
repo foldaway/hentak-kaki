@@ -6,12 +6,12 @@ module.exports = (ctx) => ctx.replyWithMediaGroup([
   },
   {
     media: 'https://i.imgur.com/pxNtRqg.png',
-    caption: 'Specialists Ranks',
+    caption: 'Specialist Ranks',
     type: 'photo'
   },
   {
     media: 'https://i.imgur.com/yGxRQRS.png',
-    caption: 'Warrent Officer Ranks',
+    caption: 'Warrant Officer Ranks',
     type: 'photo'
   },
   {
