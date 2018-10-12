@@ -30,7 +30,8 @@ module.exports = {
       reply_markup: {
         force_reply: true,
         selective: true
-      }
+      },
+      reply_to_message_id: ctx.update.message.message_id
     });
   },
   responseHandler: async (ctx) => {

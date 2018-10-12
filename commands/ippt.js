@@ -166,8 +166,10 @@ module.exports = {
       reply_markup: {
         keyboard: ageGroups.map((text) => [{ text }]),
         one_time_keyboard: true,
-        selective: true
-      }
+        selective: true,
+        resize_keyboard: true
+      },
+      reply_to_message_id: ctx.update.message.message_id
     });
   },
   responseHandler: (ctx) => {
@@ -184,8 +186,10 @@ module.exports = {
         ctx.reply('How many push-ups?', {
           reply_markup: {
             force_reply: true,
-            selective: true
-          }
+            selective: true,
+            resize_keyboard: true
+          },
+          reply_to_message_id: ctx.update.message.message_id
         });
         break;
       }
@@ -195,8 +199,10 @@ module.exports = {
         ctx.reply('How many sit-ups?', {
           reply_markup: {
             force_reply: true,
-            selective: true
-          }
+            selective: true,
+            resize_keyboard: true
+          },
+          reply_to_message_id: ctx.update.message.message_id
         });
         break;
       case 'situps':
@@ -205,8 +211,10 @@ module.exports = {
         ctx.reply('How long was your run?', {
           reply_markup: {
             force_reply: true,
-            selective: true
-          }
+            selective: true,
+            resize_keyboard: true
+          },
+          reply_to_message_id: ctx.update.message.message_id
         });
         break;
       case 'run': {

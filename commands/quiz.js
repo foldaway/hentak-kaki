@@ -8,8 +8,10 @@ module.exports = {
           [{ text: 'OCS' }]
         ],
         one_time_keyboard: true,
-        selective: true
-      }
+        selective: true,
+        resize_keyboard: true
+      },
+      reply_to_message_id: ctx.update.message.message_id
     });
   },
   responseHandlers: {

@@ -20,8 +20,11 @@ module.exports = {
       reply_markup: {
         keyboard: OPTIONS.map((text) => [{ text }]),
         one_time_keyboard: true,
-        selective: true
-      }
+        force_reply: true,
+        selective: true,
+        resize_keyboard: true
+      },
+      reply_to_message_id: ctx.update.message.message_id
     });
     ctx.scene.state.prevMessage = message;
   },
@@ -69,8 +72,10 @@ module.exports = {
                   .map((text) => [{ text }]),
                 one_time_keyboard: true,
                 force_reply: true,
-                selective: true
-              }
+                selective: true,
+                resize_keyboard: true
+              },
+              reply_to_message_id: ctx.update.message.message_id
             });
             ctx.scene.state.prevMessage = message;
             break;
@@ -84,8 +89,10 @@ module.exports = {
                   .map((text) => [{ text }]),
                 one_time_keyboard: true,
                 force_reply: true,
-                selective: true
-              }
+                selective: true,
+                resize_keyboard: true
+              },
+              reply_to_message_id: ctx.update.message.message_id
             });
             ctx.scene.state.prevMessage = message;
             break;
@@ -104,8 +111,10 @@ module.exports = {
                   .map((text) => [{ text }]),
                 one_time_keyboard: true,
                 force_reply: true,
-                selective: true
-              }
+                selective: true,
+                resize_keyboard: true
+              },
+              reply_to_message_id: ctx.update.message.message_id
             });
             ctx.scene.state.prevMessage = message;
             break;
