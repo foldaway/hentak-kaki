@@ -132,15 +132,15 @@ module.exports = {
 
       let text = '';
       if (nowAFs.length > 0) {
-        text += `Cat 1 started (until ${dateFormat(nowAFs[0].periodEnd, 'HHMM')})\n*${nowAFs.map(formatFunc).join('\n')}*\n`;
+        text += `Cat 1 started (until ${dateFormat(areaForecastMap[nowAFs[0].name].periodEnd, 'HHMM')})\n*${nowAFs.map(formatFunc).join('\n')}*\n`;
       }
 
       if (wasAFs.length > 0) {
-        text += `Cat 1 downgraded (since ${dateFormat(wasAFs[0].periodStart, 'HHMM')})\n*${wasAFs.map(formatFunc).join('\n')}*\n`;
+        text += `Cat 1 downgraded (since ${dateFormat(areaForecastMap[wasAFs[0].name].periodStart, 'HHMM')})\n*${wasAFs.map(formatFunc).join('\n')}*\n`;
       }
 
       if (extAFs.length > 0) {
-        text += `Cat 1 extended (until ${dateFormat(extAFs[0].periodEnd, 'HHMM')})\n*${extAFs.map(formatFunc).join('\n')}*\n`;
+        text += `Cat 1 extended (until ${dateFormat(areaForecastMap[extAFs[0].name].periodEnd, 'HHMM')})\n*${extAFs.map(formatFunc).join('\n')}*\n`;
       }
 
       if (text.length > 0) {
