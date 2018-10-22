@@ -47,6 +47,7 @@ module.exports = {
     const previousItem = items[items.length - 2];
 
     if (latestItem.update_timestamp === await get(KEY_LATEST_UPDATE_TIMESTAMP)) {
+      console.log(`Last update timestamp (${latestItem.update_timestamp}) identical, terminating.`)
       return;
     }
     set(KEY_LATEST_UPDATE_TIMESTAMP, latestItem.update_timestamp);
