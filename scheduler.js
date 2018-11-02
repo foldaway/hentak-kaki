@@ -10,5 +10,9 @@ glob.sync('./tasks/**/*.js').forEach((file) => {
   const exp = require(path.resolve(file)); // eslint-disable-line global-require
   const task = path.basename(file).replace(/\.js/, '');
   console.log(`Running '${task}' now.`);
-  exp.func(telegram);
+  try {
+    exp.func(telegram);
+  } catch (e) {
+    console.error(e);
+  }
 });

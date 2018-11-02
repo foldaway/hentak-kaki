@@ -40,6 +40,8 @@ module.exports = {
 
     if (items.length <= 2) {
       console.log('Not enough items to compare');
+      models.sequelize.close();
+      redisClient.quit();
       return;
     }
 
@@ -48,6 +50,8 @@ module.exports = {
 
     if (latestItem.update_timestamp === await get(KEY_LATEST_UPDATE_TIMESTAMP)) {
       console.log(`Last update timestamp (${latestItem.update_timestamp}) identical, terminating.`)
+      models.sequelize.close();
+      redisClient.quit();
       return;
     }
     set(KEY_LATEST_UPDATE_TIMESTAMP, latestItem.update_timestamp);
@@ -151,5 +155,7 @@ module.exports = {
         console.log(`[${subscriber.id}] Nothing to notify`);
       }
     }
+    models.sequelize.close();
+    redisClient.quit();
   }
 };
