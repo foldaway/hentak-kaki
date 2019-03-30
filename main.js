@@ -73,7 +73,9 @@ bot.command('cancel', leave());
 
 if (process.env.NODE_ENV === 'production') {
   bot.telegram.setWebhook('https://hentak-kaki.herokuapp.com/telegram');
+  console.log(`[BOT] Listening on 0.0.0.0:${process.env.PORT}, API @ /telegram. Send messages.`);
   bot.startWebhook('/telegram', null, process.env.PORT);
 } else {
+  console.log('[BOT] Polling started. Send messages.');
   bot.startPolling();
 }
