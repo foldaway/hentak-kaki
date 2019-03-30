@@ -20,9 +20,9 @@ module.exports = async (ctx) => {
     .forBrowser(Browser.CHROME)
     .setChromeOptions(options)
     .build();
-  await driver.navigate().to('https://www.facebook.com/pg/MemedefSG/photos/?ref=page_internal');
-  await driver.wait(until.elementLocated(By.css('._2eea')), 10000);
-  const posts = await driver.findElements(By.css('._2eea'));
+  await driver.navigate().to('https://www.instagram.com/memedefsg/');
+  await driver.wait(until.elementLocated(By.css('article')), 10000);
+  const posts = await driver.findElements(By.css('a[href^="/p/"]'));
 
   const chosenPost = posts[Math.floor(Math.random() * (posts.length - 1))];
   await driver.executeScript('arguments[0].scrollIntoView()', chosenPost);
@@ -33,30 +33,21 @@ module.exports = async (ctx) => {
     await chosenPost.click();
   } catch (e) {
     console.error(e);
-    try {
-      const notNowButton = await driver.findElement(By.id('#expanding_cta_close_button'));
-      await notNowButton.click();
-      await chosenPost.click();
-    } catch (ee) {
-      throw ee;
-    }
   }
 
-  await driver.wait(until.elementLocated(By.css('._n3')), 1500);
+  await driver.wait(until.elementLocated(By.css('div[role="dialog"]')), 1500);
 
-  let img = null;
+  let img = await chosenPost.findElement(By.css('img')).getAttribute('src');
   let caption = '(no caption)';
 
   try {
-    await driver.wait(until.elementLocated(By.css('.hasCaption')), 2000);
-    caption = await (await driver.findElement(By.css('.hasCaption'))).getText();
+    await driver.wait(until.elementLocated(By.css('a[title="memedefsg"]')), 2000);
+    const authorElem = (await driver.findElements(By.css('a[title="memedefsg"]')))[1];
+    caption = await authorElem.findElement(By.xpath('..')).findElement(By.xpath('..')).getText();
+    caption = caption.replace(/\s?memedefsg\s?/i, '');
   } catch (e) { console.error(e); }
 
-  try {
-    await driver.wait(until.elementLocated(By.css('img.spotlight')), 2000);
-    img = await (await driver.findElement(By.css('img.spotlight'))).getAttribute('src');
-  } catch (e) { console.error(e); }
-
+  await driver.quit();
   if (img) {
     ctx.replyWithPhoto(img, {
       caption
@@ -64,6 +55,4 @@ module.exports = async (ctx) => {
   } else {
     ctx.reply(caption);
   }
-
-  await driver.quit();
 };
