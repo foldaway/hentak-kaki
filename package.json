@@ -6,7 +6,7 @@
   "author": "Duncan Leo <duncanleo97@gmail.com>",
   "license": "MIT",
   "engines": {
-    "node": "11"
+    "node": "12"
   },
   "devDependencies": {
     "babel-preset-env": "^1.6.1",
