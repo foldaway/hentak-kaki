@@ -3,7 +3,10 @@ module.exports = (sequelize, DataTypes) => {
   var Subscription = sequelize.define('Subscription', {
     subscriber_id: DataTypes.INTEGER,
     sector_id: DataTypes.INTEGER
-  }, { underscored: true });
+  }, {
+    underscored: true,
+    tableName: 'Subscriptions'
+  });
   Subscription.associate = function(models) {
     // associations can be defined here
     Subscription.belongsTo(models.Sector);
