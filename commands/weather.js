@@ -183,7 +183,7 @@ module.exports = {
         break;
       }
       case 1: { // Subscribe
-        const sector = await models.Sector.find({
+        const sector = await models.Sector.findOne({
           where: {
             name: arg
           }
@@ -213,7 +213,7 @@ module.exports = {
       case 2: { // Unsub
         ctx.scene.leave();
 
-        const sector = await models.Sector.find({
+        const sector = await models.Sector.findOne({
           where: {
             name: arg
           }
@@ -232,7 +232,7 @@ module.exports = {
           return;
         }
 
-        const subscription = await models.Subscription.find({
+        const subscription = await models.Subscription.findOne({
           where: {
             subscriber_id: subscriber.id,
             sector_id: sector.id
