@@ -1,7 +1,8 @@
 import { config } from 'dotenv';
 config();
 
-import { DynamoDB } from 'aws-sdk';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
 import glob from 'glob';
 import TelegramBot from 'node-telegram-bot-api';
 import path from 'path';
@@ -11,7 +12,8 @@ import { TableNameSession } from './db/tableNames';
 
 const { NODE_ENV, TELEGRAM_BOT_TOKEN } = process.env;
 
-const db = new DynamoDB.DocumentClient();
+const client = new DynamoDBClient({});
+const db = DynamoDBDocument.from(client);
 
 export default async function run(update?: TelegramBot.Update) {
   if (!TELEGRAM_BOT_TOKEN) {
@@ -45,14 +47,12 @@ export default async function run(update?: TelegramBot.Update) {
       `[MESSAGE] userId=${user.id} chatId=${msg.chat.id} text=${msg.text}`
     );
 
-    const existingChatSession = await db
-      .get({
-        TableName: TableNameSession,
-        Key: {
-          chatId,
-        },
-      })
-      .promise();
+    const existingChatSession = await db.get({
+      TableName: TableNameSession,
+      Key: {
+        chatId,
+      },
+    });
 
     if (existingChatSession.Item != null) {
       const commandInstance = CommandEngine.restoreSnapshot(
@@ -67,24 +67,20 @@ export default async function run(update?: TelegramBot.Update) {
       const msgText = msg.text ?? '';
 
       if (commandInstance.isEnded) {
-        await db
-          .delete({
-            TableName: TableNameSession,
-            Key: {
-              chatId,
-            },
-          })
-          .promise();
+        await db.delete({
+          TableName: TableNameSession,
+          Key: {
+            chatId,
+          },
+        });
       } else if (msgText.slice(1) === 'cancel') {
         await commandInstance.cleanup();
-        await db
-          .delete({
-            TableName: TableNameSession,
-            Key: {
-              chatId,
-            },
-          })
-          .promise();
+        await db.delete({
+          TableName: TableNameSession,
+          Key: {
+            chatId,
+          },
+        });
         await bot.sendMessage(msg.chat.id, 'Current command aborted');
         return;
       } else {
@@ -99,15 +95,13 @@ export default async function run(update?: TelegramBot.Update) {
             `Sorry, I do not understand that. You have an ongoing /${commandInstance.name} session, use /cancel to abort.`
           );
         } else {
-          await db
-            .put({
-              TableName: TableNameSession,
-              Item: {
-                chatId,
-                snapshot: commandInstance.snapshot(),
-              },
-            })
-            .promise();
+          await db.put({
+            TableName: TableNameSession,
+            Item: {
+              chatId,
+              snapshot: commandInstance.snapshot(),
+            },
+          });
         }
 
         return;
@@ -128,15 +122,13 @@ export default async function run(update?: TelegramBot.Update) {
       );
 
       if (isHandled) {
-        await db
-          .put({
-            TableName: TableNameSession,
-            Item: {
-              chatId,
-              snapshot: instance.snapshot(),
-            },
-          })
-          .promise();
+        await db.put({
+          TableName: TableNameSession,
+          Item: {
+            chatId,
+            snapshot: instance.snapshot(),
+          },
+        });
         break;
       }
     }
@@ -170,14 +162,12 @@ export default async function run(update?: TelegramBot.Update) {
       `[CALLBACK QUERY] userId=${user.id} chatId=${chatId} data=${callbackQuery.data}`
     );
 
-    const existingChatSession = await db
-      .get({
-        TableName: TableNameSession,
-        Key: {
-          chatId,
-        },
-      })
-      .promise();
+    const existingChatSession = await db.get({
+      TableName: TableNameSession,
+      Key: {
+        chatId,
+      },
+    });
 
     if (existingChatSession.Item != null) {
       const commandInstance = CommandEngine.restoreSnapshot(
@@ -190,14 +180,12 @@ export default async function run(update?: TelegramBot.Update) {
       );
 
       if (commandInstance.isEnded) {
-        await db
-          .delete({
-            TableName: TableNameSession,
-            Key: {
-              chatId,
-            },
-          })
-          .promise();
+        await db.delete({
+          TableName: TableNameSession,
+          Key: {
+            chatId,
+          },
+        });
       } else {
         const isHandled = await commandInstance.handle(callbackQuery);
 
@@ -210,15 +198,13 @@ export default async function run(update?: TelegramBot.Update) {
             `Sorry, I do not understand that. You have an ongoing /${commandInstance.name} session, use /cancel to abort.`
           );
         } else {
-          await db
-            .put({
-              TableName: TableNameSession,
-              Item: {
-                chatId,
-                snapshot: commandInstance.snapshot(),
-              },
-            })
-            .promise();
+          await db.put({
+            TableName: TableNameSession,
+            Item: {
+              chatId,
+              snapshot: commandInstance.snapshot(),
+            },
+          });
         }
 
         return;
@@ -239,15 +225,13 @@ export default async function run(update?: TelegramBot.Update) {
       );
 
       if (isHandled) {
-        await db
-          .put({
-            TableName: TableNameSession,
-            Item: {
-              chatId,
-              snapshot: instance.snapshot(),
-            },
-          })
-          .promise();
+        await db.put({
+          TableName: TableNameSession,
+          Item: {
+            chatId,
+            snapshot: instance.snapshot(),
+          },
+        });
         break;
       }
     }

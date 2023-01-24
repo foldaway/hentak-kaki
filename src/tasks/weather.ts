@@ -1,4 +1,5 @@
-import { DynamoDB } from 'aws-sdk';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
 import { DateTime } from 'luxon';
 import TelegramBot from 'node-telegram-bot-api';
 
@@ -14,17 +15,16 @@ interface CacheValue {
   timestamp: Date;
 }
 
-const db = new DynamoDB.DocumentClient();
+const client = new DynamoDBClient({});
+const db = DynamoDBDocument.from(client);
 
 async function getCacheValue(): Promise<CacheValue | null> {
-  const cachedLatestUpdateTimestampQuery = await db
-    .get({
-      TableName: TableNameCache,
-      Key: {
-        id: CACHE_KEY_LATEST_UPDATE_TIMESTAMP,
-      },
-    })
-    .promise();
+  const cachedLatestUpdateTimestampQuery = await db.get({
+    TableName: TableNameCache,
+    Key: {
+      id: CACHE_KEY_LATEST_UPDATE_TIMESTAMP,
+    },
+  });
 
   return (cachedLatestUpdateTimestampQuery.Item ?? null) as CacheValue | null;
 }
@@ -42,14 +42,12 @@ export default async function checkWeatherAndNotify() {
 
   const areas = area_metadata.map((area) => area.name);
   for (const area of areas) {
-    const { Item: existingSector } = await db
-      .get({
-        TableName: TableNameSector,
-        Key: {
-          name: area,
-        },
-      })
-      .promise();
+    const { Item: existingSector } = await db.get({
+      TableName: TableNameSector,
+      Key: {
+        name: area,
+      },
+    });
 
     sectorMap[area] = existingSector as DB.Sector;
 

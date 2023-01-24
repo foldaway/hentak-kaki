@@ -1,8 +1,10 @@
-import { DynamoDB } from 'aws-sdk';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
 
 import { TableNameSubscriber } from './tableNames';
 
-const db = new DynamoDB.DocumentClient();
+const client = new DynamoDBClient({});
+const db = DynamoDBDocument.from(client);
 
 export async function getAllSubscribers(): Promise<DB.Subscriber[]> {
   const subscribers: DB.Subscriber[] = [];
@@ -10,12 +12,10 @@ export async function getAllSubscribers(): Promise<DB.Subscriber[]> {
   let ExclusiveStartKey: any = undefined;
 
   do {
-    const query = await db
-      .scan({
-        TableName: TableNameSubscriber,
-        ExclusiveStartKey,
-      })
-      .promise();
+    const query = await db.scan({
+      TableName: TableNameSubscriber,
+      ExclusiveStartKey,
+    });
 
     ExclusiveStartKey = query.LastEvaluatedKey;
 

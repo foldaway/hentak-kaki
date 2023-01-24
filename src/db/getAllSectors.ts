@@ -1,8 +1,10 @@
-import { DynamoDB } from 'aws-sdk';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
 
 import { TableNameSector } from './tableNames';
 
-const db = new DynamoDB.DocumentClient();
+const client = new DynamoDBClient({});
+const db = DynamoDBDocument.from(client);
 
 export async function getAllSectors(): Promise<DB.Sector[]> {
   const sectors: DB.Sector[] = [];
@@ -10,12 +12,10 @@ export async function getAllSectors(): Promise<DB.Sector[]> {
   let ExclusiveStartKey: any = undefined;
 
   do {
-    const query = await db
-      .scan({
-        TableName: TableNameSector,
-        ExclusiveStartKey,
-      })
-      .promise();
+    const query = await db.scan({
+      TableName: TableNameSector,
+      ExclusiveStartKey,
+    });
 
     ExclusiveStartKey = query.LastEvaluatedKey;
 

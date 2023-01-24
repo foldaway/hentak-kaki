@@ -1,11 +1,13 @@
-import { DynamoDB } from 'aws-sdk';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
 import { DateTime } from 'luxon';
 
 import { getAllSectors } from '../db/getAllSectors';
 import { TableNameSubscriber } from '../db/tableNames';
 import fetchWeatherData from '../util/fetchWeatherData';
 
-const db = new DynamoDB.DocumentClient();
+const client = new DynamoDBClient({});
+const db = DynamoDBDocument.from(client);
 
 enum Option {
   Check = 'Check a sector',
@@ -19,14 +21,12 @@ interface State {
 }
 
 async function getSubscriber(chatId: number): Promise<DB.Subscriber | null> {
-  const query = await db
-    .get({
-      TableName: TableNameSubscriber,
-      Key: {
-        chatId,
-      },
-    })
-    .promise();
+  const query = await db.get({
+    TableName: TableNameSubscriber,
+    Key: {
+      chatId,
+    },
+  });
 
   return (query.Item ?? null) as DB.Subscriber | null;
 }
