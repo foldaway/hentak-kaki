@@ -35,6 +35,7 @@
     "build": "esbuild `find src \\( -name '*.ts' \\)` --platform=node --outdir=dist --target=node16 --bundle --sourcemap"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.256.0",
     "axios": "^1.2.3",
     "dotenv": "^8.2.0",
     "glob": "^7.1.6",
