@@ -1,9 +1,6 @@
 import { flatten, sample } from 'lodash';
 import Snoowrap from 'snoowrap';
 import TurndownService from 'turndown';
-const turndownService = new TurndownService({
-  strongDelimiter: '**',
-});
 
 const r = new Snoowrap({
   userAgent:
@@ -42,6 +39,10 @@ const GhostStoryCommand: App.CommandDefinition = {
             ],
           };
         }
+
+        const turndownService = new TurndownService({
+          strongDelimiter: '**',
+        });
 
         return {
           responses: [

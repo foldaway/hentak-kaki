@@ -2,10 +2,6 @@ import { flatten, sample } from 'lodash';
 import Snoowrap, { Comment } from 'snoowrap';
 import TurndownService from 'turndown';
 
-const turndownService = new TurndownService({
-  strongDelimiter: '**',
-});
-
 const r = new Snoowrap({
   userAgent:
     'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.85 Safari/537.36',
@@ -88,6 +84,10 @@ const VocationCommand: App.CommandDefinition = {
         const sampleReplies = chosenComment.replies
           .sort(() => 0.5 - Math.random())
           .slice(0, 5);
+
+        const turndownService = new TurndownService({
+          strongDelimiter: '**',
+        });
 
         return {
           responses: [
