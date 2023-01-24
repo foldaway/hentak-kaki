@@ -1,6 +1,6 @@
 import { flatten, sample } from 'lodash';
+import { NodeHtmlMarkdown } from 'node-html-markdown';
 import Snoowrap, { Comment } from 'snoowrap';
-import TurndownService from 'turndown';
 
 const r = new Snoowrap({
   userAgent:
@@ -85,15 +85,15 @@ const VocationCommand: App.CommandDefinition = {
           .sort(() => 0.5 - Math.random())
           .slice(0, 5);
 
-        const turndownService = new TurndownService({
-          strongDelimiter: '**',
+        const text = NodeHtmlMarkdown.translate(chosenComment.body, {
+          strongDelimiter: '*',
         });
 
         return {
           responses: [
             {
               type: 'text',
-              text: `*OP*: _${turndownService.turndown(chosenComment.body)}_
+              text: `*OP*: _${text}_
   
 ${sampleReplies
   .map((reply) => `*/u/${reply.author.name}:* ${reply.body}`)

@@ -1,6 +1,6 @@
 import { flatten, sample } from 'lodash';
+import { NodeHtmlMarkdown } from 'node-html-markdown';
 import Snoowrap from 'snoowrap';
-import TurndownService from 'turndown';
 
 const r = new Snoowrap({
   userAgent:
@@ -40,8 +40,8 @@ const GhostStoryCommand: App.CommandDefinition = {
           };
         }
 
-        const turndownService = new TurndownService({
-          strongDelimiter: '**',
+        const text = NodeHtmlMarkdown.translate(comment.body, {
+          strongDelimiter: '*',
         });
 
         return {
@@ -50,7 +50,7 @@ const GhostStoryCommand: App.CommandDefinition = {
               type: 'text',
               text: `
 *${comment.author.name}:*
-${turndownService.turndown(comment.body)}
+${text}
   `,
             },
           ],
