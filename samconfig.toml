@@ -1,0 +1,10 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "hentak-kaki"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-4jHcPiD54L82L"
+s3_prefix = "hentak-kaki"
+region = "ap-southeast-1"
+capabilities = "CAPABILITY_IAM"
+image_repositories = []

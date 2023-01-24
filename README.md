@@ -1,28 +1,16 @@
-# Hentak Kaki
-[![CircleCI](https://circleci.com/gh/jurvis/hentak-kaki/tree/master.svg?style=svg&circle-token=46b056b7aa5f749c7d61353f2480639bddd119bc)](https://circleci.com/gh/jurvis/hentak-kaki/tree/master)
+# hentak-kaki
+[![Deploy](https://github.com/fourthclasshonours/hentak-kaki/actions/workflows/deploy.yml/badge.svg)](https://github.com/fourthclasshonours/hentak-kaki/actions/workflows/deploy.yml)
 
-This is a bot built to serve NSmen.
+This is a bot built to serve NSmen. 
 
-## Requirements
-This app requires:
-- Postgres 9.x+ (for persistent data)
-- Redis (for dispensable key-value data)
+This is set up primarily for development to AWS Lambda, and uses AWS DynamoDB for persistence.
 
-## Running
-### Database Setup
-`$ yarn sequelize db:create`  
-`$ yarn sequelize db:migrate`  
+There is no local development mode, and this command can be used to deploy locally to production:
+```shell
+yarn clean && yarn build && sam build && sam deploy
+```
 
-If you ever need to reset the database:  
-`$ yarn sequelize db:drop`  
-`$ yarn sequelize db:create`  
-
-### Actual start
-`$ yarn start`
-
-### Scheduler scripts
-#### clock.js
-This is a script that runs 24/7 (or is at least supposed to) and runs tasks at their required intervals. It does this by scheduling using the Node.JS `cron` library when the script is started.
-
-#### scheduler.js
-This is a script that instantly executes all our tasks sequentially, regardless of their timings. This is meant for Heroku Scheduler.
+### Setting webhook for production
+```shell
+yarn set-webhook <AWS Lambda Function URL>
+```
