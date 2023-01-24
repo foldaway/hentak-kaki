@@ -32,7 +32,7 @@ async function getSubscriber(chatId: number): Promise<DB.Subscriber | null> {
 }
 
 const WeatherCommand: App.CommandDefinition<State> = {
-  name: 'command',
+  name: 'weather',
   initialState: {
     option: Option.Check,
   },
