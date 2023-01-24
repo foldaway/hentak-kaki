@@ -7,7 +7,11 @@ import { TableNameSubscriber } from '../db/tableNames';
 import fetchWeatherData from '../util/fetchWeatherData';
 
 const client = new DynamoDBClient({});
-const db = DynamoDBDocument.from(client);
+const db = DynamoDBDocument.from(client, {
+  marshallOptions: {
+    removeUndefinedValues: true,
+  },
+});
 
 enum Option {
   Check = 'Check a sector',

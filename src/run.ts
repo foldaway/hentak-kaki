@@ -13,7 +13,11 @@ import { TableNameSession } from './db/tableNames';
 const { NODE_ENV, TELEGRAM_BOT_TOKEN } = process.env;
 
 const client = new DynamoDBClient({});
-const db = DynamoDBDocument.from(client);
+const db = DynamoDBDocument.from(client, {
+  marshallOptions: {
+    removeUndefinedValues: true,
+  },
+});
 
 export default async function run(update?: TelegramBot.Update) {
   if (!TELEGRAM_BOT_TOKEN) {

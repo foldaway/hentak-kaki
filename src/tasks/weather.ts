@@ -16,7 +16,11 @@ interface CacheValue {
 }
 
 const client = new DynamoDBClient({});
-const db = DynamoDBDocument.from(client);
+const db = DynamoDBDocument.from(client, {
+  marshallOptions: {
+    removeUndefinedValues: true,
+  },
+});
 
 async function getCacheValue(): Promise<CacheValue | null> {
   const cachedLatestUpdateTimestampQuery = await db.get({
