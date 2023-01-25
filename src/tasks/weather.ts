@@ -12,6 +12,7 @@ const { NODE_ENV, TELEGRAM_BOT_TOKEN } = process.env;
 const CACHE_KEY_LATEST_UPDATE_TIMESTAMP = 'WEATHER_LATEST_UPDATE_TIMESTAMP';
 
 interface CacheValue {
+  id: string;
   timestamp: Date;
 }
 
@@ -89,6 +90,7 @@ export default async function checkWeatherAndNotify() {
   }
 
   const newCacheValue: CacheValue = {
+    id: CACHE_KEY_LATEST_UPDATE_TIMESTAMP,
     timestamp: latestItem.update_timestamp,
   };
 
