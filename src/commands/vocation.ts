@@ -24,7 +24,7 @@ const hasReplies = (
     return false;
   }
 
-  return replies.children.length > 0;
+  return replies.data.children.length > 0;
 };
 
 const VocationCommand: App.CommandDefinition = {
@@ -90,7 +90,10 @@ const VocationCommand: App.CommandDefinition = {
         }
         console.log(`[VOCATION] Chosen ${chosenComment.data.permalink}`);
 
-        const sampleReplies = sampleSize(chosenComment.replies.children, 5);
+        const sampleReplies = sampleSize(
+          chosenComment.replies.data.children,
+          5
+        );
 
         const text = NodeHtmlMarkdown.translate(chosenComment.data.body, {
           strongDelimiter: '*',

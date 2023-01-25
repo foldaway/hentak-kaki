@@ -2,7 +2,9 @@ import axios from 'axios';
 
 export interface RedditListing {
   kind: 'Listing';
-  children: RedditComment[];
+  data: {
+    children: RedditComment[];
+  };
 }
 
 export interface RedditComment {
@@ -26,5 +28,5 @@ export default async function fetchRedditComments(
     `https://reddit.com/${submissionId}.json`
   );
 
-  return response.data[1].children;
+  return response.data[1].data.children;
 }
