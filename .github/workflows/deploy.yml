@@ -32,10 +32,6 @@ jobs:
         run: |
           parameterOverrides=(
             'TelegramBotToken="${{ secrets.TELEGRAM_BOT_TOKEN }}"' \
-            'RedditClientId="${{ secrets.REDDIT_CLIENT_ID }}"' \
-            'RedditClientSecret="${{ secrets.REDDIT_CLIENT_SECRET }}"' \
-            'RedditUsername="${{ secrets.REDDIT_USERNAME }}"' \
-            'RedditPassword="${{ secrets.REDDIT_PASSWORD }}"' \
           )
           sam deploy \
             --parameter-overrides \

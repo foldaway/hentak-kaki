@@ -1,15 +1,10 @@
-import { flatten, sample } from 'lodash';
+import { flatten, sample, sampleSize } from 'lodash';
 import { NodeHtmlMarkdown } from 'node-html-markdown';
-import Snoowrap, { Comment } from 'snoowrap';
 
-const r = new Snoowrap({
-  userAgent:
-    'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.85 Safari/537.36',
-  clientId: process.env.REDDIT_CLIENT_ID,
-  clientSecret: process.env.REDDIT_CLIENT_SECRET,
-  username: process.env.REDDIT_USERNAME,
-  password: process.env.REDDIT_PASSWORD,
-});
+import fetchRedditComments, {
+  RedditComment,
+  RedditListing,
+} from '../util/fetchRedditComments';
 
 const submissions = [
   '8r475u', // 02/18
@@ -20,8 +15,17 @@ const submissions = [
 ];
 
 // const hasBodyText = comment => 'body' in comment.data || 'body_html' in comment.data;
-const hasReplies = (comment: Comment) =>
-  comment.replies && comment.replies.length > 0;
+const hasReplies = (
+  comment: RedditComment
+): comment is RedditComment & { replies: RedditListing } => {
+  const { replies } = comment.data;
+
+  if (typeof replies === 'string') {
+    return false;
+  }
+
+  return replies.children.length > 0;
+};
 
 const VocationCommand: App.CommandDefinition = {
   name: 'vocation',
@@ -57,14 +61,18 @@ const VocationCommand: App.CommandDefinition = {
       async handle(msg) {
         const argument = msg.text;
         console.log(`[VOCATION] Searching for '${argument}'`);
-        const hasArgument = (comment: { body: string }) =>
-          new RegExp(`${argument}\\b`, 'i').test(comment.body);
+        const hasArgument = (comment: RedditComment) =>
+          new RegExp(`${argument}\\b`, 'i').test(comment.data.body);
 
-        const responses = await Promise.all(
-          submissions.map((id) => r.getSubmission(id).comments)
-        );
-        const feedComments = flatten(responses);
-        const relevantComments = feedComments
+        const responses: RedditComment[] = [];
+
+        for (const submissionId of submissions) {
+          responses.push(...(await fetchRedditComments(submissionId)));
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+
+        const feedListings = flatten(responses);
+        const relevantComments = feedListings
           .filter(hasArgument)
           .filter(hasReplies);
 
@@ -80,12 +88,11 @@ const VocationCommand: App.CommandDefinition = {
             ],
           };
         }
-        console.log(`[VOCATION] Chosen ${chosenComment.permalink}`);
-        const sampleReplies = chosenComment.replies
-          .sort(() => 0.5 - Math.random())
-          .slice(0, 5);
+        console.log(`[VOCATION] Chosen ${chosenComment.data.permalink}`);
 
-        const text = NodeHtmlMarkdown.translate(chosenComment.body, {
+        const sampleReplies = sampleSize(chosenComment.replies.children, 5);
+
+        const text = NodeHtmlMarkdown.translate(chosenComment.data.body, {
           strongDelimiter: '*',
         });
 
@@ -96,7 +103,7 @@ const VocationCommand: App.CommandDefinition = {
               text: `*OP*: _${text}_
   
 ${sampleReplies
-  .map((reply) => `*/u/${reply.author.name}:* ${reply.body}`)
+  .map((reply) => `*/u/${reply.data.author}:* ${reply.data.body}`)
   .join('\n')}`,
             },
           ],
