@@ -77,7 +77,7 @@ Resources:
     Type: AWS::Serverless::SimpleTable
     Properties:
       PrimaryKey:
-        Name: Name
+        Name: name
         Type: String
       TableName: hentak-kaki-sector-table
   SubscriberTable:
