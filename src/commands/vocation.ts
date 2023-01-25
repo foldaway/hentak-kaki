@@ -20,7 +20,7 @@ const hasReplies = (
 ): comment is RedditComment & { replies: RedditListing } => {
   const { replies } = comment.data;
 
-  if (typeof replies === 'string') {
+  if (replies == null || typeof replies === 'string') {
     return false;
   }
 

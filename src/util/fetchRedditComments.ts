@@ -14,7 +14,7 @@ export interface RedditComment {
     author: string;
     body: string;
     body_html: string;
-    replies: RedditListing | '';
+    replies?: RedditListing | '';
     permalink: string;
   };
 }
