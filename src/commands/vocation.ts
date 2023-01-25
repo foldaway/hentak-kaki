@@ -17,7 +17,7 @@ const submissions = [
 // const hasBodyText = comment => 'body' in comment.data || 'body_html' in comment.data;
 const hasReplies = (
   comment: RedditComment
-): comment is RedditComment & { replies: RedditListing } => {
+): comment is RedditComment & { data: { replies: RedditListing } } => {
   const { replies } = comment.data;
 
   if (replies == null || typeof replies === 'string') {
@@ -91,7 +91,7 @@ const VocationCommand: App.CommandDefinition = {
         console.log(`[VOCATION] Chosen ${chosenComment.data.permalink}`);
 
         const sampleReplies = sampleSize(
-          chosenComment.replies.data.children,
+          chosenComment.data.replies.data.children,
           5
         );
 
